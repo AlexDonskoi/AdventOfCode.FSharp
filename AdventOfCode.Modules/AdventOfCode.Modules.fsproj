@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Compile Include="Helpers\FileReader.fs" />
+        <Content Include="Y2015\Inputs\Day4.txt" />
+        <Compile Include="Y2015\Day4.fs" />
+        <Content Include="Y2020\Inputs\Day1.txt" />
+        <Content Include="Y2020\Inputs\Day2.txt" />
+        <Compile Include="Y2020\Day1.fs" />
+        <Compile Include="Y2020\Day2.fs" />
+    </ItemGroup>
+
+</Project>
