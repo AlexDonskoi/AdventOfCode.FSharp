@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Compile Include="Infrastructure\Utilities.fs" />
+        <Compile Include="Infrastructure\Puzzle.fs" />
+        <Compile Include="Infrastructure\FileReader.fs" />
+        <Compile Include="Infrastructure\Storage.fs" />
+        <Content Include="Y2015\Inputs\Day4.txt" />
+        <Compile Include="Y2015\Day4.fs" />
+        <Content Include="Y2020\Inputs\Day1.txt" />
+        <Content Include="Y2020\Inputs\Day2.txt" />
+        <Content Include="Y2020\Inputs\Day3.txt" />
+        <Content Include="Y2020\Inputs\Day4.txt" />
+        <Content Include="Y2020\Inputs\Day5.txt" />
+        <Compile Include="Y2020\Day1.fs" />
+        <Compile Include="Y2020\Day2.fs" />
+        <Compile Include="Y2020\Day3.fs" />
+        <Compile Include="Y2020\Day4.fs" />
+        <Compile Include="Y2020\Day5.fs" />
+    </ItemGroup>
+
+</Project>

@@ -1,8 +1,8 @@
-namespace AdventOfCode.Modules.Y2020
+namespace AdventOfCode.Cases.Y2020
 
 open System
 open System.Text.RegularExpressions
-open AdventOfCode.Modules.Helpers.FileReader
+open AdventOfCode.Cases.Infrastructure
 
 module Day2 =
 
@@ -40,17 +40,17 @@ module Day2 =
                              |> Seq.map fst
             validator policy.min policy.max occurrence
 
-    let case validator seq =
+    let run validator seq =
         let predicate = validate validator
         Seq.map parse seq
         |> Seq.filter predicate
         |> Seq.length
 
-    let inputs = lines 2020 2
-
-    let caseA =
-        case <| validateCount <| inputs
-
-    let caseB =
-        case <| validatePosition <| inputs
+    [<Puzzle(2020, 2)>]
+    let puzzle case (source:seq<string>) =
+        let validator =
+            match case with
+            | Case.A -> validateCount
+            | Case.B -> validatePosition
+        run validator source
 

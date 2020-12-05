@@ -1,12 +1,19 @@
 ﻿// Learn more about F# at http://docs.microsoft.com/dotnet/fsharp
 
-let runner = AdventOfCode.Modules.Y2020.Day2.caseB
+open AdventOfCode.Cases.Infrastructure
+open AdventOfCode.Cases.Y2020
+
+let searchAssembly = typeof<PuzzleAttribute>.Assembly
+let runStorage year day case =
+    Storage.all searchAssembly
+    |> Storage.get year day case
+    <| (FileReader.lines year day)
 
 // Define a function to construct a message to print
 [<EntryPoint>]
 let main argv =
-    runner
-    |> printfn "Result is %A"
+    runStorage 2020 5 B
+    |> printfn "Result is %O"
     0 // return an integer exit code
 
 

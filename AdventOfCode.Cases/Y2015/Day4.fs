@@ -1,4 +1,4 @@
-namespace AdventOfCode.Modules.Y2015
+namespace AdventOfCode.Cases.Y2015
 
 module Day4 =
 

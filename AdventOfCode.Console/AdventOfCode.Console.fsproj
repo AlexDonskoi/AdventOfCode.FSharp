@@ -10,7 +10,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\AdventOfCode.Modules\AdventOfCode.Modules.fsproj" />
+      <ProjectReference Include="..\AdventOfCode.Cases\AdventOfCode.Cases.fsproj" />
     </ItemGroup>
 
 </Project>

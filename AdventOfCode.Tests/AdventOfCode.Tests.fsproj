@@ -2,6 +2,7 @@
 
     <PropertyGroup>
         <TargetFramework>net5.0</TargetFramework>
+        <OutputType>Library</OutputType>
     </PropertyGroup>
 
     <ItemGroup>
@@ -18,10 +19,16 @@
       <Compile Include="Y2015\Day4Tests.fs" />
       <Compile Include="Y2020\Day1Tests.fs" />
       <Compile Include="Y2020\Day2Tests.fs" />
+      <Compile Include="Y2020\Day3Tests.fs" />
+      <Compile Include="Y2020\Day4Tests\Day4ATests.fs" />
+      <Compile Include="Y2020\Day4Tests\Day4BTests.fs" />
+      <Compile Include="Y2020\Day4Tests\Day4ValidateTokenTests.fs" />
+      <Compile Include="Y2020\Day4Tests\Day4Tests.fs" />
+      <Compile Include="Y2020\Day5Tests.fs" />
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\AdventOfCode.Modules\AdventOfCode.Modules.fsproj" />
+      <ProjectReference Include="..\AdventOfCode.Cases\AdventOfCode.Cases.fsproj" />
     </ItemGroup>
 
 </Project>

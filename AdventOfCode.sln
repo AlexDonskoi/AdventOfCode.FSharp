@@ -4,7 +4,7 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "AdventOfCode.Console", "Adv
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "AdventOfCode.Tests", "AdventOfCode.Tests\AdventOfCode.Tests.fsproj", "{8AAF434A-C00D-4E36-8BF5-FD79E473611E}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "AdventOfCode.Modules", "AdventOfCode.Modules\AdventOfCode.Modules.fsproj", "{5B0FCC5D-CD5F-4414-AC27-CB4DE545A832}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "AdventOfCode.Cases", "AdventOfCode.Cases\AdventOfCode.Cases.fsproj", "{5B0FCC5D-CD5F-4414-AC27-CB4DE545A832}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
