@@ -106,9 +106,6 @@ module Day4 =
         | A -> hasRequired
         |> Seq.length
 
-    let inputs = FileReader.lines 2020 4
-    let caseA() =
-       run A inputs
-
-    let caseB() =
-        run B inputs
+    [<Puzzle(2020, 4)>]
+    let puzzle case (source:seq<string>) =
+        run case source

@@ -46,10 +46,10 @@ module Day3 =
         |> List.map countTrees
         |> List.reduce (*)
 
-    let inputs = FileReader.lines 2020 3
-
-    let caseA() =
-        run [(3, 1)] inputs
-
-    let caseB() =
-        run [(1, 1); (3, 1); (5, 1); (7, 1); (1, 2);] inputs
+    [<Puzzle(2020, 3)>]
+    let puzzle case (source:seq<string>) =
+        let validator =
+            match case with
+            | Case.A -> [(3, 1)]
+            | Case.B -> [(1, 1); (3, 1); (5, 1); (7, 1); (1, 2);]
+        run validator source

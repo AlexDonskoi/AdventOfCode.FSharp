@@ -1,13 +1,6 @@
 namespace AdventOfCode.Cases.Infrastructure
 open System.IO
 
-type InputSource = Line | Char | Full
-
-type Data =
-    | Lines of seq<string>
-    | Char of seq<string>
-    | Full of string
-
 module FileReader =
 
     let private toLines (content:string) =
@@ -16,14 +9,18 @@ module FileReader =
     let private readAsync (filePath:string) =
         async {
             use sr = new StreamReader (filePath)
-            let! content = sr.ReadToEndAsync() |> Async.AwaitTask
-            return toLines content
+            return! sr.ReadToEndAsync() |> Async.AwaitTask
         }
 
-    let path year day = Path.Combine(__SOURCE_DIRECTORY__, "..", "Y" + (string)year, "Inputs", "Day" + (string)day + ".txt")
+    let private path year day = Path.Combine(__SOURCE_DIRECTORY__, "..", "Y" + (string)year, "Inputs", "Day" + (string)day + ".txt")
 
-    let lines year day =
-        path year day
-        |> readAsync
-        |> Async.RunSynchronously
+    let source year day =
+        let content =
+            path year day
+            |> readAsync
+            |> Async.RunSynchronously
+        function
+        | Line -> toLines content |> ContentType.Line
+        | Char -> ContentType.Char content
+        | All -> ContentType.All content
 
