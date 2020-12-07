@@ -5,11 +5,13 @@ type Case = A|B
 type ContentType =
     | Line of seq<string>
     | Char of seq<char>
+    | Group of seq<list<string>>
     | All of string
 
 type AcceptType =
     | Line
     | Char
+    | Group
     | All
 
 

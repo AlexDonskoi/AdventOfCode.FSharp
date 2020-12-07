@@ -12,11 +12,12 @@ module Storage =
     let private assignable (tgt:Type) (src:Type) = tgt.IsAssignableFrom(src)
 
     let private invocation (method:MethodInfo) acceptType (case:Case) (source:DataSource) =
-        let input:_ =
+        let input =
             match source acceptType with
             | ContentType.Line x -> x :> obj
             | ContentType.Char x -> x :> obj
             | ContentType.All x -> x :> obj
+            | ContentType.Group x -> x :> obj
         method.Invoke(null, [| case; input |])
 
     let private unsupported message _ _ :obj = message
@@ -30,6 +31,7 @@ module Storage =
                 | t when t = typeof<seq<string>> -> methodInvocation AcceptType.Line
                 | t when t = typeof<seq<char>> -> methodInvocation AcceptType.Char
                 | t when t = typeof<string> -> methodInvocation AcceptType.All
+                | t when t = typeof<seq<list<string>>> -> methodInvocation AcceptType.Group
                 | _ -> unsupported "unsupported input type"
             | _ -> unsupported "unsupported method signature"
         (info.Year, info.Day, invoker)

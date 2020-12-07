@@ -25,6 +25,7 @@
       <Compile Include="Y2020\Day4Tests\Day4ValidateTokenTests.fs" />
       <Compile Include="Y2020\Day4Tests\Day4Tests.fs" />
       <Compile Include="Y2020\Day5Tests.fs" />
+      <Compile Include="Y2020\Day6Tests.fs" />
     </ItemGroup>
 
     <ItemGroup>
