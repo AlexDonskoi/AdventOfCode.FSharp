@@ -8,11 +8,13 @@ module Day2Tests =
 
     [<Fact>]
     let ``Valid 1 item with count check`` () =
-        let actual = Day2.run Day2.validateCount <| seq { "1-3 a: abcde" }
+        let fnc = Day2.run Day2.validateCount
+        let actual = seq { "1-3 a: abcde" } |> fnc
+        let actual = seq { "1-4 a: abcde" } |> fnc
         test <@ actual = 1  @>
 
     [<Fact>]
-    let ``Valid 2 items count check`` () =
+    let ``Valid 2 items count check``() =
         let actual = Day2.run Day2.validateCount <| seq { "1-3 a: abcde"; "2-9 c: ccccccccc" }
         test <@ actual = 2  @>
 

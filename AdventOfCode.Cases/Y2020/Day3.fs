@@ -29,7 +29,6 @@ module Day3 =
     | Some '#' -> true
     | _ -> false
 
-
     let log a =
 
         printfn "%A" a

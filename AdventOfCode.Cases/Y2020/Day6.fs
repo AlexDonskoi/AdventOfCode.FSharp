@@ -13,7 +13,7 @@ module Day6 =
         List.map Set.ofSeq >> Set.intersectMany >> Set.toSeq
 
     let union list1 list2 = List.append list1 list2 |> List.distinct
-    let intersect list1 list2 = [list1; list2] |> List.map Set.ofList |> Set.intersectMany |> Set.toList
+    //let intersect list1 list2 = [list1; list2] |> List.map Set.ofList |> Set.intersectMany |> Set.toList
 
     [<Puzzle(2020, 6)>]
     let puzzle case (source:seq<list<string>>) =
