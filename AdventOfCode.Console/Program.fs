@@ -16,7 +16,7 @@ let parse argv =
 
 [<EntryPoint>]
 let main argv =
-    runStorage 2020 10 B
+    runStorage 2020 13 B
     |> printfn "Result is %O"
     0 // return an integer exit code
 

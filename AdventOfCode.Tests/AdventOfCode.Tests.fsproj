@@ -30,6 +30,9 @@
       <Compile Include="Y2020\Day8Tests.fs" />
       <Compile Include="Y2020\Day9Tests.fs" />
       <Compile Include="Y2020\Day10Tests.fs" />
+      <Compile Include="Y2020\Day11Tests.fs" />
+      <Compile Include="Y2020\Day12Tests.fs" />
+      <Compile Include="Y2020\Day13Tests.fs" />
     </ItemGroup>
 
     <ItemGroup>

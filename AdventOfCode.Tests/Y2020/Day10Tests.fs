@@ -69,24 +69,24 @@ module Day10Tests =
     [<Fact>]
     let ``Verify B empty`` () =
         let actual = Day10.caseB []
-        test <@ actual = 1 @>
+        test <@ actual = 1L @>
 
     [<Fact>]
     let ``Verify B test 1`` () =
         let actual = Day10.caseB [1;2]
-        test <@ actual = 2 @>
+        test <@ actual = 2L @>
 
     [<Fact>]
     let ``Verify B test 2`` () =
         let actual = Day10.caseB [1;4]
-        test <@ actual = 1 @>
+        test <@ actual = 1L @>
 
     [<Fact>]
     let ``Verify B example 1`` () =
         let actual = Day10.puzzle Case.B input1
-        test <@ actual = 8 @>
+        test <@ actual = 8L @>
 
     [<Fact>]
     let ``Verify B example 2`` () =
         let actual = Day10.puzzle Case.B input2
-        test <@ actual = 19208 @>
+        test <@ actual = 19208L @>
