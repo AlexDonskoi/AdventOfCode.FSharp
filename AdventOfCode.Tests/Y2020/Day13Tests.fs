@@ -8,12 +8,6 @@ open Swensen.Unquote
 
 module Day13Tests =
 
-    let input1 = split "1
-N3
-F7
-R90
-F11"
-
     [<Fact>]
     let ``Verify parse schedule`` () =
         let actual = parseSchedule "1,2,3,x,x,5,m"
