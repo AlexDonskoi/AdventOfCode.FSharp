@@ -7,16 +7,17 @@ let runStorage year day case =
     Storage.get year day case
     <| FileReader.source year day
 
-let parse argv =
+let run argv =
     match argv with
-    | [y; d; c] -> ""
+    | [|Parser.Int y; Parser.Int d; "A"|] -> runStorage y d A
+    | [|Parser.Int y; Parser.Int d; "B"|] -> runStorage y d B
     | _ -> failwith "unexpected arguments"
 
 // Define a function to construct a message to print
 
 [<EntryPoint>]
 let main argv =
-    runStorage 2020 14 B
+    run argv
     |> printfn "Result is %O"
     0 // return an integer exit code
 

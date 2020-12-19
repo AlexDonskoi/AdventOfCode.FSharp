@@ -24,6 +24,8 @@ module Parser =
     let (|Single|_|) = parseSingle
     let (|Double|_|) = parseDouble
 
+    let (|CharInt|_|) (tgt:char)  = tgt |> string |> parseInt
+
     let split (separator:string) (target:string) = target.Split(separator)
 
     let trim (value:string) = value.Trim()
@@ -31,3 +33,11 @@ module Parser =
     let lines = split "\n"
 
     let toGroups = split "\n\n" >> Array.map lines
+
+    let inline charToInt c = int c - int '0'
+
+module Errors =
+
+    let failIf message condition =
+        if condition then failwith message
+            else ()

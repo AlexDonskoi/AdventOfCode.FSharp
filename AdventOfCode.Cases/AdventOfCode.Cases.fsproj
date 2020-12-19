@@ -25,6 +25,10 @@
         <Content Include="Y2020\Inputs\Day12.txt" />
         <Content Include="Y2020\Inputs\Day13.txt" />
         <Content Include="Y2020\Inputs\Day14.txt" />
+        <Content Include="Y2020\Inputs\Day15.txt" />
+        <Content Include="Y2020\Inputs\Day16.txt" />
+        <Content Include="Y2020\Inputs\Day17.txt" />
+        <Content Include="Y2020\Inputs\Day18.txt" />
         <Compile Include="Y2020\Day1.fs" />
         <Compile Include="Y2020\Day2.fs" />
         <Compile Include="Y2020\Day3.fs" />
@@ -39,6 +43,10 @@
         <Compile Include="Y2020\Day12.fs" />
         <Compile Include="Y2020\Day13.fs" />
         <Compile Include="Y2020\Day14.fs" />
+        <Compile Include="Y2020\Day15.fs" />
+        <Compile Include="Y2020\Day16.fs" />
+        <Compile Include="Y2020\Day17.fs" />
+        <Compile Include="Y2020\Day18.fs" />
     </ItemGroup>
 
 </Project>

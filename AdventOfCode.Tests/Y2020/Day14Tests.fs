@@ -23,7 +23,7 @@ module Day14Tests =
     [<Fact>]
     let ``Verify case B mask varies`` () =
         let actual = CaseB.maskInfo "X0X1"
-        test <@ actual = (4UL, [11UL; 9UL; 3UL; 1UL])@>
+        test <@ actual = (4UL, [11UL; 9UL; 3UL; 1UL]) @>
 
     [<Fact>]
     let ``Verify case B example`` () =
