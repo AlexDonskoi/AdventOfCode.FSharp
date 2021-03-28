@@ -18,6 +18,7 @@ let run argv =
 [<EntryPoint>]
 let main argv =
     run argv
+    //runStorage 2020 19 A
     |> printfn "Result is %O"
     0 // return an integer exit code
 

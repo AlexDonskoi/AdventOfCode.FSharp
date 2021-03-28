@@ -25,7 +25,7 @@ module Day15 =
     [<Puzzle(2020, 15)>]
     let puzzle case (input:string) =
         input
-        |> split ","
+        |> String.split ","
         |> Array.map int
         |>
         match case with

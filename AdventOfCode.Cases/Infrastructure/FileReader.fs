@@ -18,8 +18,8 @@ module FileReader =
             |> readAsync
             |> Async.RunSynchronously
         function
-        | Line -> content |> Parser.lines |> Array.toSeq |> ContentType.Line
+        | Line -> content |> String.lines |> Array.toSeq |> ContentType.Line
         | Char -> ContentType.Char content
         | All -> ContentType.All content
-        | Group -> content |> Parser.split "\n\n" |> Array.map Parser.lines |> Array.map Seq.toList |> Array.toSeq |> ContentType.Group
+        | Group -> content |> String.split "\n\n" |> Array.map String.lines |> Array.map Seq.toList |> Array.toSeq |> ContentType.Group
 

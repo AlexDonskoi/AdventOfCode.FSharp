@@ -2,8 +2,6 @@ namespace AdventOfCode.Cases.Y2020
 
 open System.Text.RegularExpressions
 open AdventOfCode.Cases.Infrastructure
-open AdventOfCode.Cases.Infrastructure.Parser
-open AdventOfCode.Cases.Y2020.Day9
 
 module Day16 =
 
@@ -12,12 +10,6 @@ module Day16 =
     type Ticket = list<int64>
     type Captures = (string -> list<string>)
     type Input = list<Rule> * Ticket * list<Ticket>
-
-    let captures (matches:GroupCollection) (name:string) =
-        [for c in matches.[name].Captures -> c.Value]
-
-    let groupValue (name:string) (matches:GroupCollection) =
-        matches.[name].Value
 
     let ruleRegexp = Regex "^(?<name>.+): (?<min>\d+)-(?<max>\d+)( or (?<min>\d+)-(?<max>\d+))*$"
 
@@ -31,9 +23,9 @@ module Day16 =
     let parseRule input =
         let m = ruleRegexp.Match input
         if not m.Success then failwith "incorrect row format"
-            else captures m.Groups |> buildRule
+            else Regex.captures m |> buildRule
 
-    let parseTicket = split "," >> Array.toList >> List.map int64
+    let parseTicket = String.split "," >> Array.toList >> List.map int64
 
 
     let parseInput = function

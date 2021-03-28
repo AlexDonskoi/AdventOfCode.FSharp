@@ -12,7 +12,7 @@ module Day13 =
     let rec lcm a b = (a / (gcf a b)) * b
 
     let parseSchedule input =
-        [for i,x in  split "," input |> Array.mapi (fun ind el -> ind, el) do
+        [for i,x in  String.split "," input |> Array.mapi (fun ind el -> ind, el) do
              match x with
              | Int64 n -> yield n, int64 i
              | _ -> ()]

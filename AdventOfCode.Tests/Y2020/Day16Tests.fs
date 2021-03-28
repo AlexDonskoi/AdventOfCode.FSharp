@@ -28,7 +28,7 @@ module Day16Tests =
                 "38,6,12"]
         }
         let actual = puzzle Case.A input
-        test <@ actual = 0L @>
+        test <@ actual = 71L @>
 
     [<Fact>]
     let ``Verify case B example`` () =
@@ -44,8 +44,7 @@ module Day16Tests =
                 "nearby tickets:"
                 "3,9,18"
                 "15,1,5"
-                "55,2,20"
                 "5,14,9"]
         }
         let actual = puzzle Case.B input
-        test <@ actual = 1L @>
+        test <@ actual = 1716L @>

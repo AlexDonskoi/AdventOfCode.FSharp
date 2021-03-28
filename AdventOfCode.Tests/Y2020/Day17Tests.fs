@@ -2,7 +2,7 @@ namespace AdventOfCode.Tests.Y2020
 
 open System
 open AdventOfCode.Cases.Infrastructure
-open AdventOfCode.Cases.Infrastructure.Parser
+open AdventOfCode.Cases.Infrastructure.String
 open AdventOfCode.Cases.Y2020.Day17
 open Xunit
 open Swensen.Unquote
