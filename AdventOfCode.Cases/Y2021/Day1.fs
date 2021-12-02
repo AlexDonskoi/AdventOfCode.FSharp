@@ -1,4 +1,4 @@
-module AdventOfCode.Cases.Y2021.Day25
+module AdventOfCode.Cases.Y2021.Day1
 
 open AdventOfCode.Cases.Infrastructure
 
