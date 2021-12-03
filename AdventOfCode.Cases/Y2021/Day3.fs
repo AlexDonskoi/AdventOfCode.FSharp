@@ -4,9 +4,6 @@ open AdventOfCode.Cases.Infrastructure
 
 let parse = Seq.map int >> Seq.map ((-) 48 >> (*) -1) >> Seq.toList
 
-let toNumber =
-    List.map int64 >> List.fold (fun acc cur -> acc * 2L + cur) 0L
-
 let split =
     let oxySelector (f, s) = if List.length f < List.length s then s else f
     let co2Selector (f, s) = if List.length f < List.length s then f else s
@@ -17,9 +14,9 @@ let split =
              |> (fun pair -> (oxySelector pair, co2Selector pair))
 
 let rec rate select acc = function
-    | [] -> acc
-    | [ h ] -> List.fold (fun acc cur -> acc * 2L + (int64 cur)) acc h
+    | []
     | []::_ -> acc
+    | [ h ] -> List.fold (fun acc cur -> acc * 2L + (int64 cur)) acc h
     | src ->
         let adj = src |> List.head |> List.head |> int64
         let acc = acc * 2L + adj
