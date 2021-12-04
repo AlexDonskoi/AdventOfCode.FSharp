@@ -1,5 +1,6 @@
 namespace AdventOfCode.Cases.Infrastructure
 
+open System
 open System.Text.RegularExpressions
 
 module Parser =
@@ -31,7 +32,7 @@ module Parser =
     let inline charToInt c = int c - int '0'
 
 module String =
-    let split (separator:string) (target:string) = target.Split(separator)
+    let split (separator:string) (target:string) = target.Split(separator, StringSplitOptions.RemoveEmptyEntries)
 
     let contains (pattern:char) (target:string) = target.Contains(pattern)
 
