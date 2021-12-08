@@ -29,3 +29,13 @@ let ``Increase sequence``() =
 let ``Decrease sequence``() =
     let state = "8,7,6,5,4,3,2,1" |> puzzle Case.A
     test <@ state = 16 @>
+
+[<Fact>]
+let ``Balanced sequence A``() =
+    let state = "1,1,1,1,1,5,5,5,5,5" |> puzzle Case.A
+    test <@ state = 20 @>
+
+[<Fact>]
+let ``Balanced sequence B``() =
+    let state = "1,5" |> puzzle Case.B
+    test <@ state = 6 @>
