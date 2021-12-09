@@ -22,6 +22,7 @@ let rec next count (state:array<_>) =
     | _ ->
         let producers = Array.head state
         Array.iteri cycle state
+        state.[8]<-producers
         state.[6]<-state.[6] + producers
         next (count - 1) state
 

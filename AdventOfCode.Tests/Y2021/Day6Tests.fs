@@ -11,7 +11,7 @@ let ``Example tests``() =
 
 [<Theory>]
 [<InlineData(1, 5L)>]
-[<InlineData(18, 526L)>]
+[<InlineData(18, 26L)>]
 [<InlineData(80, 5934L)>]
 [<InlineData(256, 26984457539L)>]
 let ``Verify example`` days expected =
