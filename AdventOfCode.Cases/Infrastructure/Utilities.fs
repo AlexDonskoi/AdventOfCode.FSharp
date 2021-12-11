@@ -31,6 +31,20 @@ module Parser =
 
     let inline charToInt c = int c - int '0'
 
+module Array2D =
+    let sizes source =
+        let size1 = Array2D.length1 source - 1
+        let size2 = Array2D.length2 source - 1
+        size1, size2
+
+    let alli source =
+        let size1, size2 = sizes source
+        [for i in 0..size1 do
+                for j in 0..size2 -> (i,j)]
+
+    let collect mapper source =
+        source |> alli |> List.map (fun (i,j) -> mapper i j source.[i,j])
+
 module String =
     let split (separator:string) (target:string) = target.Split(separator, StringSplitOptions.RemoveEmptyEntries)
 
