@@ -61,6 +61,8 @@ module String =
         | Some h -> list |> Seq.tail |> Seq.fold (fun acc cur -> (+) <| acc + separator <| string cur) (string h)
         | _ -> ""
 
+    let upper:string->string = Seq.map Char.ToUpper >> joinSeq ""
+
     let fromList:list<char>->string = List.map string >> List.reduce (+)
 
     let lines = split "\n"
