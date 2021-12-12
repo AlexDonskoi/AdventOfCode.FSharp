@@ -51,44 +51,6 @@ let example3 = seq {
 }
 
 [<Fact>]
-let ``ContinuationsA A-c-A``() =
-    let map = example1 |> Seq.map parseLine |> map
-
-    let actual = continuations isValidA map ["A"; "c"; "A"; "start"]
-    test <@ actual = [["end"; "A"; "c"; "A"; "start"]; ["b"; "A"; "c"; "A"; "start"]] @>
-
-[<Fact>]
-let ``ContinuationsA b-A-c``() =
-    let map = example1 |> Seq.map parseLine |> map
-
-    let actual = continuations isValidA map ["c"; "A"; "b"; "start"]
-    let expected =
-        [
-            ["A"; "c"; "A"; "b"; "start"]
-        ]
-    test <@ actual = expected @>
-
-[<Fact>]
-let ``ContinuationsB b-A``() =
-    let map = example1 |> Seq.map parseLine |> map
-
-    let actual = continuations isValidB map ["A"; "b"; "start"]
-    let expected =
-        [
-            ["end"; "A"; "b"; "start"]
-            ["b"; "A"; "b"; "start"]
-            ["c"; "A"; "b"; "start"]
-        ]
-    test <@ actual = expected @>
-
-[<Fact>]
-let ``ContinuationsB end``() =
-    let map = example1 |> Seq.map parseLine |> map
-
-    let actual = continuations isValidB map ["end"; "A"; "b"; "start"]
-    test <@ actual = [] @>
-
-[<Fact>]
 let ``Example1 caseA``() =
     let actual = example1 |> puzzle Case.A
     test <@ actual = 10 @>

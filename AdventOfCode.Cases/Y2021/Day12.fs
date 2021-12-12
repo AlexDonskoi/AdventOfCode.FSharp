@@ -14,10 +14,8 @@ let addRoute start finish =
     | _, "start" -> id
     | "end", _ -> id
     | s,f ->
-        Map.change start
-        <| function
-            | Some caves -> finish::caves |> Some
-            | _ -> Some [finish]
+        let update = Option.defaultValue [] >> List.append [finish] >> Some
+        Map.change start update
 
 let add (f,s) = addRoute f s >> addRoute s f
 
@@ -26,52 +24,37 @@ let map = Seq.fold (fun acc cur -> add cur acc) Map.empty
 let finish = "end"
 let start = "start"
 
-let continuations isValid map path =
-    let last = List.head path
-    let isValid = isValid path
-    let connections = Map.find last map
-    List.filter isValid connections
-    |> List.map (fun it -> it::path)
+let next connections (duplicates, path) =
+    [for c in connections path ->
+        let isSmall = c <> String.upper c
+        let duplicates = duplicates + (if isSmall && List.contains c path then 1 else 0)
+        duplicates, c::path ]
+    |> function
+        | [] -> [(duplicates, path)]
+        | v -> v
 
-let rec allPaths isValid map paths =
-    let continuation = continuations isValid map
-    let completed, rest = List.partition (List.head >> (=) finish) paths
-    match List.collect continuation rest with
+let rec allPaths filter connections paths completed =
+    match paths with
     | [] -> completed
-    | paths -> allPaths isValid map <| List.append paths completed
+    | paths ->
+        let newCompleted, rest =
+            [for flag, path in paths do yield! next connections (flag, path) |> List.filter (fst >> filter)]
+            |> List.partition (snd >> List.head >> (=) finish)
+        let completed = List.length newCompleted + completed
+        allPaths filter connections rest completed
 
-let isValidA path cur =
-    let last = List.head path
-    if List.pairwise path |> List.contains (cur,last)
-        then false
-        elif (cur <> String.upper cur) && List.contains cur path then false
-        else true
-
-let isValidB path cur =
-    let last = List.head path
-    let smallVisitedTwice =
-        path
-        |> List.filter (fun it -> it <> String.upper it)
-        |> List.countBy id
-        |> List.filter (snd >> (<) 1)
-        |> List.tryHead
-        |> Option.isSome
-    let isBig = cur = String.upper cur
-    if List.contains finish path then false
-    elif isBig then true
-    elif cur = start then false
-    elif smallVisitedTwice then List.contains cur path |> not
-    else true
+let filterA  = (=) 0
+let filterB  = (>) 2
 
 
 [<Puzzle(2021, 12)>]
 let puzzle case (input:seq<string>) =
     let map = input |> Seq.map parseLine |> map
-    let start = List.singleton [start]
+    let start = List.singleton (0, [start])
+    let connections path = List.head path |> Map.tryFind <| map |> Option.defaultValue []
     allPaths
     <| match case with
-        | Case.A -> isValidA
-        | Case.B -> isValidB
-    <| map
-    <| start
-    |> List.length
+        | Case.A -> filterA
+        | Case.B -> filterB
+    <| connections
+    <| start <| 0
