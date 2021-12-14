@@ -71,6 +71,22 @@ module String =
 
     let reverse: (string->string) = Seq.rev >> joinSeq ""
 
+module Option =
+
+    let max compare =
+        function
+        | Some v -> max v compare
+        | _ -> compare
+        >> Some
+
+    let min compare =
+        function
+        | Some v -> min v compare
+        | _ -> compare
+        >> Some
+
+
+
 module Errors =
 
     let failIf message condition =
