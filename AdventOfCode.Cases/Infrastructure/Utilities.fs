@@ -95,7 +95,8 @@ module Errors =
 
 module Regex =
     let captures (matches:Match) (name:string) =
-        [for c in matches.Groups.[name].Captures -> c.Value]
+        if matches.Success then [for c in matches.Groups.[name].Captures -> c.Value]
+            else []
 
     let groupValue (name:string) (matches:GroupCollection) =
         matches.[name].Value
