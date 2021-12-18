@@ -58,6 +58,7 @@
       <Compile Include="Y2021\Day15Tests.fs" />
       <Compile Include="Y2021\Day16Tests.fs" />
       <Compile Include="Y2021\Day17Tests.fs" />
+      <Compile Include="Y2021\Day18Tests.fs" />
     </ItemGroup>
 
     <ItemGroup>
