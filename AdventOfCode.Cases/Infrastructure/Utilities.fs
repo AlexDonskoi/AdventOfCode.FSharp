@@ -10,6 +10,8 @@ module Parser =
         | false, _   -> None
 
     let parseDate   = tryParseWith System.DateTime.TryParse
+
+    let parseUInt16    = tryParseWith System.UInt16.TryParse
     let parseInt    = tryParseWith System.Int32.TryParse
 
     let parseInt64    = tryParseWith System.Int64.TryParse
@@ -22,6 +24,7 @@ module Parser =
 
     // active patterns for try-parsing strings
     let (|Date|_|)   = parseDate
+    let (|UInt16|_|)    = parseUInt16
     let (|Int|_|)    = parseInt
     let (|Int64|_|)    = parseInt64
     let (|Single|_|) = parseSingle
@@ -41,6 +44,20 @@ module Array2D =
         let size1, size2 = sizes source
         [for i in 0..size1 do
                 for j in 0..size2 -> (i,j)]
+
+    let fold folder state source=
+        let mutable tmpState = state
+        Array2D.iter (fun v ->
+            tmpState<- folder tmpState v
+            ()) source
+        tmpState
+
+    let foldi folder state source=
+        let mutable tmpState = state
+        Array2D.iteri (fun i j v ->
+            tmpState<- folder tmpState i j v
+            ()) source
+        tmpState
 
     let collect mapper source =
         source |> alli |> List.map (fun (i,j) -> mapper i j source.[i,j])

@@ -1,22 +1,12 @@
-namespace AdventOfCode.Tests.Y2015
-
+module AdventOfCode.Tests.Y2015.Day4Tests
+open AdventOfCode.Cases.Infrastructure
 open Xunit
-open AdventOfCode.Cases.Y2015
+open AdventOfCode.Cases.Y2015.Day4
 open Swensen.Unquote
 
-module Day4Tests =
-
-    [<Fact>]
-    let ``Success empty pattern`` () =
-        let actual = Day4.case [""] []
-        test <@ actual = [1]  @>
-
-    [<Fact>]
-    let ``Success empty prefix match pattern`` () =
-        let actual = Day4.case [""] ['c'; '8']
-        test <@ actual = [2]  @>
-
-    [<Fact>]
-    let ``Success non- prefix match pattern`` () =
-        let actual = Day4.case ["1"] ['c'; '2']
-        test <@ actual = [2]  @>
+[<Theory>]
+[<InlineData("abcdef", 609043)>]
+[<InlineData("pqrstuv", 1048970)>]
+let ``Example case a``  input expected=
+    let actual = puzzle Case.A input
+    test <@ actual = expected  @>

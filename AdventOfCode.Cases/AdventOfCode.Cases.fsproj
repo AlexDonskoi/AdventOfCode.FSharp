@@ -5,6 +5,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <Compile Include="Utilities\Segment.fs" />
         <Compile Include="Infrastructure\Utilities.fs" />
         <Compile Include="Infrastructure\Puzzle.fs" />
         <Compile Include="Infrastructure\FileReader.fs" />
@@ -12,8 +13,22 @@
         <Compile Include="Infrastructure\Settings.fs" />
         <Compile Include="Infrastructure\Handlers.fs" />
         <Compile Include="Infrastructure\Interaction.fs" />
+        <Content Include="Y2015\Inputs\Day1.txt" />
+        <Content Include="Y2015\Inputs\Day2.txt" />
+        <Content Include="Y2015\Inputs\Day3.txt" />
         <Content Include="Y2015\Inputs\Day4.txt" />
+        <Content Include="Y2015\Inputs\Day5.txt" />
+        <Content Include="Y2015\Inputs\Day6.txt" />
+        <Content Include="Y2015\Inputs\Day7.txt" />
+        <Content Include="Y2015\Inputs\Day8.txt" />
+        <Compile Include="Y2015\Day1.fs" />
+        <Compile Include="Y2015\Day2.fs" />
+        <Compile Include="Y2015\Day3.fs" />
         <Compile Include="Y2015\Day4.fs" />
+        <Compile Include="Y2015\Day5.fs" />
+        <Compile Include="Y2015\Day6.fs" />
+        <Compile Include="Y2015\Day7.fs" />
+        <Compile Include="Y2015\Day8.fs" />
         <Content Include="Y2020\Inputs\Day1.txt" />
         <Content Include="Y2020\Inputs\Day2.txt" />
         <Content Include="Y2020\Inputs\Day3.txt" />
