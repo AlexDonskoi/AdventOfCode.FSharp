@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net5.0</TargetFramework>
+        <TargetFramework>net6.0</TargetFramework>
     </PropertyGroup>
 
     <ItemGroup>
@@ -29,6 +29,8 @@
         <Compile Include="Y2015\Day6.fs" />
         <Compile Include="Y2015\Day7.fs" />
         <Compile Include="Y2015\Day8.fs" />
+        <Content Include="Y2016\Inputs\Day1.txt" />
+        <Compile Include="Y2016\Day1.fs" />
         <Content Include="Y2020\Inputs\Day1.txt" />
         <Content Include="Y2020\Inputs\Day2.txt" />
         <Content Include="Y2020\Inputs\Day3.txt" />
@@ -129,6 +131,8 @@
         <Compile Include="Y2021\Day23.fs" />
         <Compile Include="Y2021\Day24.fs" />
         <Compile Include="Y2021\Day25.fs" />
+        <Content Include="Y2022\Inputs\Day1.txt" />
+        <Compile Include="Y2022\Day1.fs" />
     </ItemGroup>
 
 </Project>
