@@ -82,9 +82,9 @@ module String =
 
     let fromList:list<char>->string = List.map string >> List.reduce (+)
 
-    let lines = split "\n"
+    let lines = split Environment.NewLine
 
-    let toGroups = split "\n\n" >> Array.map lines
+    let toGroups = split $"{Environment.NewLine}{Environment.NewLine}" >> Array.map lines
 
     let reverse: (string->string) = Seq.rev >> joinSeq ""
 

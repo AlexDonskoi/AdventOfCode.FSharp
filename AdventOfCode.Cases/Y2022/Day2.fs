@@ -5,7 +5,7 @@ open AdventOfCode.Cases.Infrastructure.Parser
 open Microsoft.FSharp.Core
 
 let scoreA (src:string) =
-    match src.Trim() with
+    match src with
     | "A X" -> 3 + 1
     | "A Y" -> 6 + 2
     | "A Z" -> 0 + 3
@@ -18,7 +18,7 @@ let scoreA (src:string) =
     | _ -> failwith "unknown value"
 
 let scoreB (src:string) =
-    match src.Trim() with
+    match src with
     | "A X" -> 0 + 3
     | "A Y" -> 3 + 1
     | "A Z" -> 6 + 2
