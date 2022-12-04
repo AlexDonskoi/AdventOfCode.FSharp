@@ -134,9 +134,11 @@
         <Content Include="Y2022\Inputs\Day1.txt" />
         <Content Include="Y2022\Inputs\Day2.txt" />
         <Content Include="Y2022\Inputs\Day3.txt" />
+        <Content Include="Y2022\Inputs\Day4.txt" />
         <Compile Include="Y2022\Day1.fs" />
         <Compile Include="Y2022\Day2.fs" />
         <Compile Include="Y2022\Day3.fs" />
+        <Compile Include="Y2022\Day4.fs" />
     </ItemGroup>
 
 </Project>
