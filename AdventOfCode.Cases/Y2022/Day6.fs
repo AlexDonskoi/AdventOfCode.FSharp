@@ -11,15 +11,14 @@ let puzzle case (source:string) =
         | Case.A -> 4
         | Case.B -> 14
 
-    let condition (_, arr) =
-        Seq.distinct arr |> Seq.length |> (=) 14
+    let condition = Seq.distinct >> Seq.length >> (=) window
 
     source
     |> Seq.windowed window
-    |> Seq.indexed
-    |> Seq.tryFind condition
-    |> Option.defaultValue (0, Array.empty<char>)
-    |> fst
+    |> Seq.tryFindIndex condition
+    |> function
+        | Some v -> v
+        | None -> failwith "no match found"
     |> (+) window
 
 
