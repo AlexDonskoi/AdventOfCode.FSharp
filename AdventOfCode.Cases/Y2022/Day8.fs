@@ -5,7 +5,7 @@ open AdventOfCode.Cases.Infrastructure.Parser
 open Microsoft.FSharp.Core
 open Microsoft.Win32.SafeHandles
 
-let parse: char[,]->int[,] = Array2D.map (fun v -> int v - 48)
+let parse: char[,]->int[,] = Array2D.map (string >> int)
 
 let visibility acc (src, calcInd) =
     let folder (tree, collect) (ind, cur) =
@@ -39,7 +39,7 @@ let scenicScore (src:int[,]) (i,j) =
 
     let score = count src[i,j]
     seq{
-        yield src[i,*] |> Seq.take j |> Seq.rev
+        yield src[i,0..j] |> Seq.take j |> Seq.rev
         yield src[i,*] |> Seq.skip (j + 1)
         yield src[*,j] |> Seq.take i |> Seq.rev
         yield src[*,j] |> Seq.skip (i + 1)
