@@ -21,5 +21,5 @@ module FileReader =
         | Line -> content |> String.lines |> Array.toSeq |> ContentType.Line
         | Char -> ContentType.Char content
         | All -> ContentType.All content
-        | Group -> content |> String.split "\n\n" |> Array.map String.lines |> Array.map Seq.toList |> Array.toSeq |> ContentType.Group
+        | Group -> content |> String.split $"{Environment.NewLine}{Environment.NewLine}" |> Array.map String.lines |> Array.map Seq.toList |> Array.toSeq |> ContentType.Group
 
