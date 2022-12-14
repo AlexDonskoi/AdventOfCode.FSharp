@@ -1,27 +1,24 @@
-module AdventOfCode.Tests.Y2022.Day3Tests
+module AdventOfCode.Tests.Y2022.Day13Tests
 
 open AdventOfCode.Cases.Infrastructure
-open AdventOfCode.Cases.Y2022.Day3
+open AdventOfCode.Cases.Y2020.Day18
+open AdventOfCode.Cases.Y2022.Day13
 open Xunit
 open Swensen.Unquote
 
-let src = seq {
-    "vJrwpWtwJgWrhcsFMMfFFhFp"
-    "jqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL"
-    "PmmdzqPrVvPwwTWBwg"
-    "wMqvLMZHhHMvwLHjbvcjnnSBnvTQFn"
-    "ttgJtRGJQctTZtZT"
-    "CrZsJsPPZsGzwwsLwLmpwMDw"}
 
 [<Fact>]
-let ``Example A``() =
-
-    let actual = puzzle Case.A src
-    test <@ actual = 157 @>
-
-
+let ``test 1``() =
+    let actual = "[]" |> Seq.toList |> parse <| [] |> Seq.head
+    test <@ actual = Group (List []) @>
+    
+    
 [<Fact>]
-let ``Example B``() =
-
-    let actual = puzzle Case.B src
-    test <@ actual = 70 @>
+let ``test 2``() =
+    let actual = "[[],[]]" |> Seq.toList |> parse <| [] |> Seq.head
+    test <@ actual = Group (List [(List []); (List [])]) @>
+    
+[<Fact>]
+let ``test 3``() =
+    let actual = "[10,11,[]]" |> Seq.toList |> parse <| [] 
+    test <@ actual = [Group (List [(Value 10); Value 11; (List [])])]@>
