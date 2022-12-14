@@ -36,7 +36,8 @@ let rec increaseSizeRecursive key size tree =
         increaseSizeRecursive rest size tree
     | _ -> tree
 
-let foldTree (path, tree) = function
+let foldTree (path, tree) cmd =
+    match cmd with
     | Root -> ["/"], tree
     | MoveUp -> List.tail path, tree
     | Move dir -> dir::path, tree
