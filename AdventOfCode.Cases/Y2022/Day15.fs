@@ -20,8 +20,8 @@ let distance (x1, y1) (x2, y2) = abs (x1 - x2) + abs (y1 - y2)
 let zone targetRow (sx, sy) distance =
      let adj = distance - abs (targetRow - sy)
      if adj >= 0 then Some (sx - adj, sx + adj) else None
-     
-               
+
+
 [<Puzzle(2022, 15)>]
 let puzzle case (source:seq<string>) =
     let source =
@@ -35,7 +35,7 @@ let puzzle case (source:seq<string>) =
         |> Seq.toList
     let targetRow = 2000000
     let beacons = source |> Seq.map snd |> Set.ofSeq |> Seq.filter (fun (_, y) -> y = targetRow) |> Seq.length
-    
+
     match case with
     | Case.A ->
         let forbidden = forbidden targetRow
@@ -44,19 +44,26 @@ let puzzle case (source:seq<string>) =
         |> (-) <| beacons
         |> int64
     | Case.B ->
-        let max = 4000000
+        let size = 4000000
+        let borders ((x,y),d) =
+            seq {
+                for i in 0..d+1 do
+                    yield (x + i, y + (d - i + 1))
+                    yield (x - i, y + (d - i + 1))
+                    yield (x + i, y - (d - i + 1))
+                    yield (x - i, y - (d - i + 1))
+            }
         let source = Seq.map (fun (p1, p2) -> p1, distance p1 p2) source |> Seq.toList
-        let allow cur (p, dist) = distance cur p > dist
-        //let v = List.forall (allow (14,11)) source
-        let rec check src = function
-            | i,j when i >= max && j > max -> failwith "not found"
-            | i,j when i > max -> check src (0, j + 1)
-            | i,j when j > max -> check src (i + 1, 0)
-            | i,j ->
-                if List.forall (allow (i,j)) source then i, j
-                else check src (i, j + 1)
-        let (xr, yr) = check source (0, 0)
+        let points = source |> Seq.collect borders |> Seq.toList |> List.filter (fun (x, y) -> x >= 0 && y >= 0 && x <= size && y <= size)
+        let notVisible p (s,d) = distance s p > d
+        let rec search source = function
+            | x::rest ->
+                if List.forall (notVisible x) source then x
+                    else search source rest
+            | [] -> failwith "WTF"
+
+
+        let (xr, yr) = search source points
         let xr, yr = int64 xr, int64 yr
         yr + xr * 4000000L
-        
-                
+
