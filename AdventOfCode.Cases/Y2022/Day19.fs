@@ -21,42 +21,72 @@ let next blueprint state =
     let robOre, robClay, robObs, robGeo = robots
     let ore, clay, obs, geo = sources
     let maxOre = ore/costOre
-    let maxClay = clay/costClay
+    let maxClay = ore/costClay
     let maxObs = min (ore / costObsOre) (clay / costObsClay)
     let maxGeo = min (ore / costGeoOre) (obs / costGeoObs)
+    [
+        if maxGeo > 0 then
+            let robots = (robOre), (robClay), (robObs), (robGeo + 1)
+            let sources = (ore - costGeoOre + robOre), (clay + robClay), (obs - costGeoObs + robObs),(geo + robGeo)
+            yield robots, sources
+        else
+            if maxObs > 0 then
+                let robots = (robOre), (robClay), (robObs + 1), (robGeo)
+                let sources = (ore - costObsOre + robOre), (clay - costObsClay + robClay), (obs + robObs),(geo + robGeo)
+                yield robots, sources
+            // if maxOre > 0 then
+            //     let robots = (robOre + 1), (robClay), (robObs), (robGeo)
+            //     let sources = (ore - costOre + robOre), (clay + robClay), (obs + robObs),(geo + robGeo)
+            //     yield robots, sources
 
-    seq {
-        for i in 0..maxOre do
-            for j in 0..maxClay do
-                for k in 0..maxObs do
-                    for l in 0..maxGeo do
-                        let needOre = i*costOre + j*costClay + k * costObsOre + l*costGeoOre
-                        let needClay = k*costObsClay + l*costGeoObs
-                        let needObs = l*costGeoObs
-                        if needOre > ore then ()
-                        else if needClay > clay then ()
-                        else
-                            let robots = (robOre + i), (robClay + j), (robObs + k), (robGeo + l)
-                            let sources = (ore - needOre + robOre), (clay - needClay + robClay), (obs - needObs + robObs),(geo + robGeo)
-                            yield robots, sources
-    }
+            if maxClay > 0 then
+                let robots = (robOre), (robClay + 1), (robObs), (robGeo)
+                let sources = (ore - costClay + robOre), (clay + robClay), (obs + robObs),(geo + robGeo)
+                yield robots, sources
+            let needOre = (robClay *costObsOre + 1 >= robOre*costObsClay)
+            let needOre = needOre || (robObs*costGeoOre >= robOre*costGeoObs)
+            let needOre = needOre || (robClay*costObsClay*costGeoOre >= robOre*costGeoObs*costObsOre)
+            let needOre = needOre || robOre < 5
+            if maxOre > 0 && needOre then
+                let robots = (robOre + 1), (robClay), (robObs), (robGeo)
+                let sources = (ore - costOre + robOre), (clay + robClay), (obs + robObs),(geo + robGeo)
+                yield robots, sources
+            let robots = (robOre), (robClay), (robObs), (robGeo)
+            let sources = (ore + robOre), (clay + robClay), (obs + robObs),(geo + robGeo)
+            yield robots, sources
+    ]
 
 let rec count blueprint states = function
     | 0 -> states
     | iter ->
-        let nextStates = Seq.collect (next blueprint) states
+        let nextStates = Seq.collect (next blueprint) states |> Seq.toList |> List.distinct
+        let maxGeo = nextStates |> List.map (fun ((_, _, _, v),_) -> v) |> List.max |> (-) <| 5
+        let nextStates = nextStates |> List.filter (fun ((_, _, _, v),_) -> v > maxGeo)
         count blueprint nextStates (iter - 1)
 
+let maxCount blueprint iter =
+    let state = [(1, 0, 0, 0),(0, 0, 0, 0)]
+    count blueprint state iter
+    |> Seq.map (fun (_,(_, _, _, g)) -> g)
+    |> Seq.max
+
+let rec noop = function
+    | 0L -> 0
+    | iter -> noop (iter - 1L)
 
 [<Puzzle(2022, 19)>]
 let puzzle case (source:seq<string>) =
-    let blueprints = Seq.map parse source
+    let v = noop (2147483647L * 5L)
+
+
+    let blueprints = Seq.map parse source |> Seq.toList
+    blueprints
+    |>
     match case with
     | Case.A ->
-        let state = seq { (1, 0, 0, 0),(0, 0, 0, 0) }
-        blueprints
-        |> Seq.collect (fun b -> count (snd b) state 24)
-        |> Seq.map snd
-        |> Seq.map (fun (_, _, _, g) -> g)
-        |> Seq.max
-    | Case.B -> 0
+        List.map (fun (ind,b) -> maxCount b 24 |> (*) ind)
+        >> List.reduce (+)
+    | Case.B ->
+        List.take 3
+        >> List.map (fun (_,b) -> maxCount b 32)
+        >> List.fold (*) 1
