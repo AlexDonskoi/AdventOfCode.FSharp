@@ -13,80 +13,68 @@ let parse input =
         | [Int v] -> v
         | _ -> failwith "incorrect source"
     let getVal = sourceRegex.Match input |> getVal
-    getVal "num", ((getVal "ore"), (getVal "clay"), (getVal "obsidianOre"), (getVal "obsidianClay"), (getVal "geodeOre"), (getVal "geodeObsidian"))
+    ((getVal "ore"), (getVal "clay"), (getVal "obsidianOre"), (getVal "obsidianClay"), (getVal "geodeOre"), (getVal "geodeObsidian"))
 
-let next blueprint state =
+let rec next blueprint step strategy state =
+    if step = 0 then Some state
+    else
+    let flag = strategy % 5L
+    let buildGeo = flag = 1L
+    let buildObs = flag = 2L
+    let buildClay = flag = 3L
+    let buildOre = flag = 4L
     let costOre, costClay, costObsOre, costObsClay, costGeoOre, costGeoObs = blueprint
     let robots, sources = state
     let robOre, robClay, robObs, robGeo = robots
     let ore, clay, obs, geo = sources
-    let maxOre = ore/costOre
-    let maxClay = ore/costClay
-    let maxObs = min (ore / costObsOre) (clay / costObsClay)
-    let maxGeo = min (ore / costGeoOre) (obs / costGeoObs)
-    [
-        if maxGeo > 0 then
-            let robots = (robOre), (robClay), (robObs), (robGeo + 1)
-            let sources = (ore - costGeoOre + robOre), (clay + robClay), (obs - costGeoObs + robObs),(geo + robGeo)
-            yield robots, sources
-        else
-            if maxObs > 0 then
-                let robots = (robOre), (robClay), (robObs + 1), (robGeo)
-                let sources = (ore - costObsOre + robOre), (clay - costObsClay + robClay), (obs + robObs),(geo + robGeo)
-                yield robots, sources
-            // if maxOre > 0 then
-            //     let robots = (robOre + 1), (robClay), (robObs), (robGeo)
-            //     let sources = (ore - costOre + robOre), (clay + robClay), (obs + robObs),(geo + robGeo)
-            //     yield robots, sources
 
-            if maxClay > 0 then
-                let robots = (robOre), (robClay + 1), (robObs), (robGeo)
-                let sources = (ore - costClay + robOre), (clay + robClay), (obs + robObs),(geo + robGeo)
-                yield robots, sources
-            let needOre = (robClay *costObsOre + 1 >= robOre*costObsClay)
-            let needOre = needOre || (robObs*costGeoOre >= robOre*costGeoObs)
-            let needOre = needOre || (robClay*costObsClay*costGeoOre >= robOre*costGeoObs*costObsOre)
-            let needOre = needOre || robOre < 5
-            if maxOre > 0 && needOre then
-                let robots = (robOre + 1), (robClay), (robObs), (robGeo)
-                let sources = (ore - costOre + robOre), (clay + robClay), (obs + robObs),(geo + robGeo)
-                yield robots, sources
-            let robots = (robOre), (robClay), (robObs), (robGeo)
-            let sources = (ore + robOre), (clay + robClay), (obs + robObs),(geo + robGeo)
-            yield robots, sources
-    ]
+    if buildGeo && (costGeoOre > ore || costGeoObs > obs) then None
+    else if buildObs && (costObsOre > ore || costObsClay > clay) then None
+    else if buildClay && (costClay > ore) then None
+    else if buildOre && (costOre > ore) then None
+    else
 
-let rec count blueprint states = function
-    | 0 -> states
-    | iter ->
-        let nextStates = Seq.collect (next blueprint) states |> Seq.toList |> List.distinct
-        let maxGeo = nextStates |> List.map (fun ((_, _, _, v),_) -> v) |> List.max |> (-) <| 5
-        let nextStates = nextStates |> List.filter (fun ((_, _, _, v),_) -> v > maxGeo)
-        count blueprint nextStates (iter - 1)
+        let ore = ore + robOre - (if buildOre then costOre else 0) - (if buildClay then costClay else 0) - (if buildObs then costObsOre else 0)  - (if buildGeo then costGeoOre else 0)
+        let clay = clay + robClay - (if buildObs then costObsClay else 0)
+        let obs = obs + robObs - (if buildGeo then costGeoObs else 0)
+        let geo = geo + robGeo
+        let robOre = robOre + (if buildOre then 1 else 0)
+        let robClay = robClay + (if buildClay then 1 else 0)
+        let robObs = robObs + (if buildObs then 1 else 0)
+        let robGeo = robGeo + (if buildGeo then 1 else 0)
+        let state = (ore, clay, obs, geo), (robOre, robClay, robObs, robGeo)
+        next blueprint (step - 1) (strategy/5L) state
 
-let maxCount blueprint iter =
-    let state = [(1, 0, 0, 0),(0, 0, 0, 0)]
-    count blueprint state iter
-    |> Seq.map (fun (_,(_, _, _, g)) -> g)
-    |> Seq.max
-
-let rec noop = function
-    | 0L -> 0
-    | iter -> noop (iter - 1L)
+let rec searchStrategy blueprint steps strategy total =
+    let state = (1, 0, 0, 0),(0, 0, 0, 0)
+    let current =
+        match next blueprint steps strategy state with
+        | Some state ->
+            let (_, _, _, geo), (_, _, _, robGeo) = state
+            geo + robGeo
+        | None -> 0
+    let total = max current total
+    if strategy > 0L then
+       searchStrategy blueprint steps (strategy - 1L) total
+    else
+        total
 
 [<Puzzle(2022, 19)>]
 let puzzle case (source:seq<string>) =
-    let v = noop (2147483647L * 5L)
-
-
     let blueprints = Seq.map parse source |> Seq.toList
+
+    let cycles, filter, reduce =
+        match case with
+        | Case.A ->
+            13, id, List.mapi (fun i v -> (i + 1) * v) >>  List.reduce (+)
+        | Case.B ->
+            let take = max 3 <| List.length blueprints
+            32, List.take take, List.fold (*) 1
+    let cycles = cycles - 1
+    let max = pown 5L cycles - 1L
+
+    let maxCount blueprint = searchStrategy blueprint cycles max 0
+    let blueprints = filter blueprints
     blueprints
-    |>
-    match case with
-    | Case.A ->
-        List.map (fun (ind,b) -> maxCount b 24 |> (*) ind)
-        >> List.reduce (+)
-    | Case.B ->
-        List.take 3
-        >> List.map (fun (_,b) -> maxCount b 32)
-        >> List.fold (*) 1
+    |> List.map maxCount
+    |> reduce
