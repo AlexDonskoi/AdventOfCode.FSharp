@@ -1,4 +1,5 @@
 module AdventOfCode.Cases.Y2022.Day16
+open System
 open System.Collections.Generic
 open System.Text.RegularExpressions
 open AdventOfCode.Cases.Infrastructure
@@ -51,6 +52,30 @@ let rec move connections states = function
         let states = List.collect collector states
         move connections states (iter - 1)
 
+let searchOption maxTime valves weights current =
+    let released, visited, spent, valve = current
+    [
+     for (move, rate) in valves do
+
+         if Set.contains move visited then ()
+         else
+             let moveWeight = Map.find (valve,move) weights
+             if (moveWeight + spent >= maxTime) then()
+             else
+                 let visited = Set.add move visited
+                 let spent = spent + moveWeight + 1
+                 let released = released + rate * (maxTime - spent)
+                 released, visited, spent, move
+         ]
+
+let rec search searchOption state =
+    [for opt in searchOption state do
+            yield opt
+            yield! search searchOption opt
+   ]
+
+
+
 [<Puzzle(2022, 16)>]
 let puzzle case (source:seq<string>) =
     let connections =
@@ -58,34 +83,33 @@ let puzzle case (source:seq<string>) =
         |> Seq.map (parse >> fun (src,rate,path) -> src, (rate,path))
         |> Map.ofSeq
 
+    let valves = Map.map (fun _ v -> fst v) connections |> Map.filter (fun _ v -> v > 0) |> Map.toList
+    let moveWeight = moveWeight connections
+    let weights = "AA"::(List.map fst valves)
+    let weights = List.allPairs weights weights
+                  |> List.collect (fun (f,s) -> [f,s; f,s])
+                  |> Seq.map (fun (f,s) -> (f,s), moveWeight f s)
+                  |> Map.ofSeq
+
+
     match case with
     | Case.A ->
-        let valves = Map.filter (fun _ v -> fst v |> (<) 0) connections |> Map.keys |> List.ofSeq
-        let moveWeight = moveWeight connections
-        let weights = "AA"::valves
-        let weights = List.allPairs weights weights
-                      |> List.collect (fun (f,s) -> [f,s; f,s])
-                      |> Seq.map (fun (f,s) -> (f,s), moveWeight f s)
-                      |> Map.ofSeq
-        let rec paths valves weights acc =
-            let maxLen = List.map (snd >> List.length) acc
-            let maxLen = if List.isEmpty acc then 0 else List.max maxLen
-            if Seq.length valves |> (=) maxLen then acc
-            else
-            let acc = [
-                for w, lst in acc do
-                    //if w
-                    let add = Seq.except lst valves
-                    let head = Seq.tryHead lst |> Option.defaultValue "AA"
-                    yield! [
-                        for a in add do
-                            let w = Map.find (head, a) weights |> (+) w
-                            if w < 31 then w, a::lst
-                    ]
+        let searchOption = searchOption 30 valves weights
+        search searchOption (0, Set.singleton "AA", 0, "AA")
+        |> List.map (fun (v,_,_,_) -> v) |> List.max
 
-            ]
-            paths valves weights acc
-        let moveOptions = paths valves weights <| List.map (fun v -> Map.find ("AA",v) weights, [v]) valves
-        0
-    | Case.B -> 0
+
+    | Case.B ->
+        let searchOption = searchOption 26 valves weights
+        let items =
+            search searchOption (0, Set.singleton "AA", 0, "AA")
+            |> List.sortByDescending (fun (ra, va, _, _) -> ra)
+        let rec findRecursive = function
+            | [_] |[] -> failwith "wtf"
+            | (ra,va, _, _)::rest ->
+                match List.tryFind (fun (_,vb, _, _) -> Set.intersect va vb |> Set.count <= 1) rest with
+                | None -> findRecursive rest
+                | Some (rb,_, _, _) -> ra + rb
+
+        findRecursive items
 
