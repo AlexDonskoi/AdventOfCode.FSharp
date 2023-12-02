@@ -52,7 +52,7 @@ module Day4 =
         |> List.length
         |> (=) 0
 
-    let regexValidate (regex:Regex) = regex.IsMatch
+    let regexValidate (regex:Regex) (input:string) = regex.IsMatch(input)
 
     let between min max = function
         | Parser.Int v -> v >= min && v <= max
@@ -72,7 +72,7 @@ module Day4 =
             | _ -> false
         loop options
 
-    let regexValidator pattern = Regex(pattern).IsMatch
+    let regexValidator pattern (input:string) = Regex(pattern).IsMatch(input)
 
     let oneOfValidator options tgt = List.contains tgt options
 

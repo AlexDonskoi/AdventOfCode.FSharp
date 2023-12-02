@@ -1,4 +1,4 @@
-module AdventOfCode.Cases.Y2023.Day1
+module AdventOfCode.Cases.Y2023.Day2
 open System
 open System.Text.RegularExpressions
 open AdventOfCode.Cases.Infrastructure
@@ -28,7 +28,7 @@ let parsePattern casePattern input =
 let parseA = parsePattern "\d"
 let parseB = parsePattern "(\d|one|two|three|four|five|six|seven|eight|nine)"
 
-[<Puzzle(2023, 1)>]
+[<Puzzle(2023, 2)>]
 let puzzle case (source:seq<string>) =
     let parse =
         match case with
