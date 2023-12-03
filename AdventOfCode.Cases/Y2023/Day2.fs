@@ -1,4 +1,4 @@
-module AdventOfCode.Cases.Y2023.Day1
+module AdventOfCode.Cases.Y2023.Day2
 open System
 open System.Text.RegularExpressions
 open AdventOfCode.Cases.Infrastructure

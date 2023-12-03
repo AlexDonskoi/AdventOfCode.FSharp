@@ -183,8 +183,10 @@
         <Compile Include="Y2022\Day25.fs" />
         <Content Include="Y2023\Inputs\Day1.txt" />
         <Content Include="Y2023\Inputs\Day2.txt" />
+        <Content Include="Y2023\Inputs\Day3.txt" />
         <Compile Include="Y2023\Day1.fs" />
         <Compile Include="Y2023\Day2.fs" />
+        <Compile Include="Y2023\Day3.fs" />
     </ItemGroup>
 
 </Project>
