@@ -188,6 +188,7 @@
         <Content Include="Y2023\Inputs\Day5.txt" />
         <Content Include="Y2023\Inputs\Day6.txt" />
         <Content Include="Y2023\Inputs\Day7.txt" />
+        <Content Include="Y2023\Inputs\Day8.txt" />
         <Compile Include="Y2023\Day1.fs" />
         <Compile Include="Y2023\Day2.fs" />
         <Compile Include="Y2023\Day3.fs" />
@@ -195,6 +196,7 @@
         <Compile Include="Y2023\Day5.fs" />
         <Compile Include="Y2023\Day6.fs" />
         <Compile Include="Y2023\Day7.fs" />
+        <Compile Include="Y2023\Day8.fs" />
     </ItemGroup>
 
 </Project>
