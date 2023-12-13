@@ -6,11 +6,22 @@ open AdventOfCode.Cases.Infrastructure
 open AdventOfCode.Cases.Infrastructure.Parser
 open Microsoft.FSharp.Core
     
-let parseSeq = String.split "," >> Seq.rev >> Seq.toList >> List.map int
+let parseSeq = String.split "," >> Array.map int
 
 let parseRow = String.split " " >> function
-    | [| src; pat |] -> src |> Seq.rev |> Seq.toList, parseSeq pat
+    | [| src; pat |] -> src |> Seq.toList, parseSeq pat
     | v -> failwith $"wtf {v}"
+
+let getMax src pattern =
+    Seq.length src
+    |> (-)
+    <| List.length pattern - 1
+    |> (-)
+    <| List.sum pattern
+    
+let getNext pattern src =
+    let size = Array.length src
+    src
 
 let size = 25
 
@@ -55,5 +66,5 @@ let puzzle case (source:seq<string>) =
               |> Seq.fold (fun a (k,v) -> Map.change k (Option.defaultValue [] >> List.append [v] >> Some) a) Map.empty
               
     match case with
-    | Case.A -> countRec source 0L <| pown 2L size - 1L
+    | Case.A -> 0L//countRec source 0L <| pown 2L size - 1L
     | Case.B -> 0L
