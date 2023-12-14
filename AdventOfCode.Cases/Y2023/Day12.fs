@@ -9,62 +9,113 @@ open Microsoft.FSharp.Core
 let parseSeq = String.split "," >> Array.map int
 
 let parseRow = String.split " " >> function
-    | [| src; pat |] -> src |> Seq.toList, parseSeq pat
+    | [| src; pat |] -> src |> Seq.toArray, parseSeq pat
     | v -> failwith $"wtf {v}"
 
-let getMax src pattern =
-    Seq.length src
-    |> (-)
-    <| List.length pattern - 1
-    |> (-)
-    <| List.sum pattern
+
+let chunks = 5
+
+let leftConnected = pown 2 (chunks - 1) |> int64
+
+type Connections = | No | Left | Right | Both
+
+let groupPattern cur =
     
-let getNext pattern src =
-    let size = Array.length src
-    src
+    let rec groupPatternRec acc cur =
+        let head = List.head acc
+        if cur = 0L then
+            if head = 0 then List.tail acc else acc
+            |> List.rev
+            |> List.toArray
+        else
+            let rest = List.tail acc
+            let acc = if cur &&& 1L = 1L then (head+1)::rest else if head <> 0 then 0::acc else acc
+            let cur = cur >>> 1
+            groupPatternRec acc cur
+    let left = leftConnected &&& cur = leftConnected
+    let right = cur &&& 1L = 1L
+    let connection =
+        match left, right with
+        | true, true -> Both
+        | _, true -> Right
+        | true, _ -> Left
+        | _, _ -> No
+    connection, groupPatternRec [0] cur
+    
+let rec isMaskMatchRec mask size cur ind =
+        if ind > size && cur = 0L then true else
+            let notAllowed = if cur &&& 1L = 1L then '.' else '#'
+            let cur = if cur = 0L then 0L else cur >>> 1
+            mask ind <> notAllowed && isMaskMatchRec mask size cur <| ind + 1
+let isMaskMatch mask tgt  =
+    isMaskMatchRec mask chunks tgt 0  
 
-let size = 25
-
-let rec groups acc cur =
-    let head = List.head acc
-    if cur = 0L then
-        if head = 0 then List.tail acc else acc |> List.rev
-    else
-        let rest = List.tail acc
-        let acc = if cur &&& 1L = 1L then (head+1)::rest else if head <> 0 then 0::acc else acc
-        let cur = cur >>> 1
-        groups acc cur
+let rec isSubPatternRec target source size connection ind =
+    if ind > size then false
+    else if Array.get target ind >= Array.get source ind then connection = Right || connection = Both
+    else if target.[ind] <> source.[ind] then false
+    else isSubPatternRec target source size connection <| ind + 1
         
-let rec maskMatch cur = function
-    | [] when cur = 0L -> true
-    | h::rest ->
-        let notAllowed = if cur &&& 1L = 1L then '.' else '#'
-        let cur = if cur = 0L then 0L else cur >>> 1
-        h <> notAllowed && maskMatch cur rest
-    | _ -> false
 
-let rec count src step =
-    let pat = groups [0] step
-    let maskMatch = maskMatch step
-    match Map.tryFind pat src with
-        | Some arr ->
-            arr |> List.fold (fun acc cur -> if maskMatch cur then acc + 1L else acc) 0L 
-        | _ -> 0L   
+let isSubPattern target (connection, source) =
+    let size = Array.length source
+    if size = 0 then true
+    else if Array.length target < size then false else
+        isSubPatternRec target source size connection 0   
 
-let rec countRec src acc step =
-    if step = 0L then acc else
-        let acc = (+) acc <| count src step
-        countRec src acc <| step - 1L   
+let optionAdd v = Option.defaultValue 0L >> (+) v >> Some
+         
+ 
+let rec optionsRec mask rootPattern acc cur =
+        if cur < 0L && isMaskMatch mask cur |> not then acc else
+            let pattern = groupPattern cur
+            let acc =
+                if isSubPattern rootPattern pattern |> not then acc else
+                    Map.change pattern (optionAdd 1L) acc
+            optionsRec mask rootPattern acc <| cur - 1L 
 
-let result = parseRow
+let getMask mask shift ind =
+    let size = Array.length mask - 1
+    let ind = ind + shift
+    if ind > size then '.' else mask.[ind]
+ 
+let merge ((connLeft, grpLeft), cntLeft) ((connRight, grpRight), cntRight) =
+    let rgpRes =
+        if Array.length grpRight = 0 then Array.copy grpLeft
+        else if Array.length grpLeft = 0  then Array.copy grpRight
+        else
+            match connLeft, connRight with
+            | Right, Left
+            | Right, Both
+            | Both, Left
+            | Both, Both ->
+                let headRight = Array.head grpRight
+                let rgpRight = Array.tail grpRight
+                let size = Array.length grpLeft
+                let grpLeft = Array.copy grpLeft
+                grpLeft.[size-1]<-grpLeft.[size-1] + headRight
+                Array.concat [ grpLeft; grpRight ]
+            |_ -> Array.concat [grpLeft; grpRight]
+    ((connRight, rgpRes), cntLeft*cntRight)
+            
+let options mask rootPattern =
+    let init = optionsRec (getMask mask 0) rootPattern Map.empty <| (leftConnected <<< 1) - 1L
+    let next = optionsRec (getMask mask chunks) rootPattern Map.empty <| (leftConnected <<< 1) - 1L
+    let folder next acc grp cnt =
+        let folder acc k v =
+            let k, v = merge (grp, cnt) (k,v)
+            Map.change k (optionAdd v) acc
+        next
+        |> Map.fold folder acc
+    init
+    |> Map.fold (folder next) Map.empty
     
 [<Puzzle(2023, 12)>]
 let puzzle case (source:seq<string>) =
-    let source = source
-              |> Seq.map parseRow
-              |> Seq.map (fun (a,b)->b, a)
-              |> Seq.fold (fun a (k,v) -> Map.change k (Option.defaultValue [] >> List.append [v] >> Some) a) Map.empty
+    let source = source |> Seq.map parseRow
               
     match case with
-    | Case.A -> 0L//countRec source 0L <| pown 2L size - 1L
+    | Case.A ->
+        let options = source |> Seq.fold (fun acc cur -> cur ||> options) Map.empty
+        0L
     | Case.B -> 0L
