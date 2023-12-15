@@ -16,11 +16,11 @@ let parseRow = String.split " " >> function
 let chunks = 5
 
 let leftConnected = pown 2 (chunks - 1) |> int64
+let maxConnected = leftConnected * 2L - 1L
 
 type Connections = | No | Left | Right | Both
 
-let groupPattern cur =
-    
+let groupPattern cur =    
     let rec groupPatternRec acc cur =
         let head = List.head acc
         if cur = 0L then
@@ -50,29 +50,36 @@ let rec isMaskMatchRec mask size cur ind =
 let isMaskMatch mask tgt  =
     isMaskMatchRec mask chunks tgt 0  
 
-let rec isSubPatternRec target source size connection ind =
-    if ind > size then false
-    else if Array.get target ind >= Array.get source ind then connection = Right || connection = Both
-    else if target.[ind] <> source.[ind] then false
-    else isSubPatternRec target source size connection <| ind + 1
+let rec isSubPatternRec target source maxInd connection ind =
+    if ind > maxInd then false else
+        let tgt = Array.get target ind
+        let src = Array.get source ind
+        if ind = maxInd && tgt > src  then connection = Right || connection = Both
+        else if tgt <> src then false
+        else if ind < maxInd then isSubPatternRec target source maxInd connection <| ind + 1
+        else true
         
 
 let isSubPattern target (connection, source) =
-    let size = Array.length source
-    if size = 0 then true
-    else if Array.length target < size then false else
-        isSubPatternRec target source size connection 0   
+    let maxInd = Array.length source - 1
+    if maxInd < 0 then true
+    else if Array.length target <= maxInd then false else
+        isSubPatternRec target source maxInd connection 0
+        
+let isPattern target (_, source) =
+    let maxInd = Array.length source - 1
+    if Array.length target <> maxInd + 1 then false else
+        isSubPatternRec target source maxInd No 0          
 
-let optionAdd v = Option.defaultValue 0L >> (+) v >> Some
-         
+let optionAdd v = Option.defaultValue 0L >> (+) v >> Some         
  
-let rec optionsRec mask rootPattern acc cur =
-        if cur < 0L && isMaskMatch mask cur |> not then acc else
-            let pattern = groupPattern cur
+let rec optionsRec mask acc cur =
+        if cur < 0L then acc else
             let acc =
-                if isSubPattern rootPattern pattern |> not then acc else
-                    Map.change pattern (optionAdd 1L) acc
-            optionsRec mask rootPattern acc <| cur - 1L 
+                if isMaskMatch mask cur |> not then acc else
+                    let pattern = groupPattern cur
+                    Map.change pattern (optionAdd 1L) acc                    
+            optionsRec mask acc <| cur - 1L 
 
 let getMask mask shift ind =
     let size = Array.length mask - 1
@@ -90,25 +97,37 @@ let merge ((connLeft, grpLeft), cntLeft) ((connRight, grpRight), cntRight) =
             | Both, Left
             | Both, Both ->
                 let headRight = Array.head grpRight
-                let rgpRight = Array.tail grpRight
+                let grpRight = Array.tail grpRight
                 let size = Array.length grpLeft
                 let grpLeft = Array.copy grpLeft
                 grpLeft.[size-1]<-grpLeft.[size-1] + headRight
                 Array.concat [ grpLeft; grpRight ]
             |_ -> Array.concat [grpLeft; grpRight]
-    ((connRight, rgpRes), cntLeft*cntRight)
+    let connection = match connRight with | Right | Both -> Right | _ -> No
+    ((connection, rgpRes), cntLeft*cntRight)
+  
             
-let options mask rootPattern =
-    let init = optionsRec (getMask mask 0) rootPattern Map.empty <| (leftConnected <<< 1) - 1L
-    let next = optionsRec (getMask mask chunks) rootPattern Map.empty <| (leftConnected <<< 1) - 1L
+let rec options mask rootPattern acc shift =
+    let filterMatch root k _ = isSubPattern root k
+    let filterMatch = filterMatch rootPattern
+    let getOptions shift = optionsRec (getMask mask shift) Map.empty <| maxConnected
     let folder next acc grp cnt =
         let folder acc k v =
             let k, v = merge (grp, cnt) (k,v)
             Map.change k (optionAdd v) acc
         next
         |> Map.fold folder acc
-    init
-    |> Map.fold (folder next) Map.empty
+    
+    let next = getOptions shift    
+    
+    let acc = 
+        acc
+        |> Map.fold (folder next) Map.empty
+    let acc = acc |> Map.filter filterMatch
+    if shift >= Array.length mask then acc else    
+        options mask rootPattern acc <| shift + chunks    
+    
+let initMap = Map [(No, [||]), 1L]    
     
 [<Puzzle(2023, 12)>]
 let puzzle case (source:seq<string>) =
@@ -116,6 +135,10 @@ let puzzle case (source:seq<string>) =
               
     match case with
     | Case.A ->
-        let options = source |> Seq.fold (fun acc cur -> cur ||> options) Map.empty
+        let getMatchOptions cur =
+            let mask, rootPattern = cur
+            options mask rootPattern initMap 0
+            |> Map.filter (fun k v -> isPattern rootPattern k)
+        let options = source |> Seq.fold (fun acc cur -> getMatchOptions cur) Map.empty
         0L
     | Case.B -> 0L
