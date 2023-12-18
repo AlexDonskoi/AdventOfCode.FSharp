@@ -11,40 +11,8 @@ open Microsoft.FSharp.Core
 let parseRow = String.split " " >> function
     | [| dir; Int mv; color |] -> dir, mv, color
     | _ -> failwith "wtf"
-    
-    
-let rec move visited (i,j) = function
-    | [] -> visited
-    | (dir, mv)::rest ->
-        let moves =
-            match dir with
-            | "R" -> [for k in 1..mv -> (i, j + k)]
-            | "L" -> [for k in 1..mv -> (i, j - k)]
-            | "U" -> [for k in 1..mv -> (i - k, j)]
-            | "D" -> [for k in 1..mv -> (i + k, j)]
-            | _ -> []
-        let cur = List.last moves
-        let visited = List.fold (fun acc c -> Set.add c acc) visited moves
-        move visited cur rest
-
-let rec wave digged si sj fi fj visited tmp =
-    if Set.isEmpty tmp then visited else
-        let cur = Set.minElement tmp
-        let (ci, cj) = cur
-        let tmp = Set.remove cur tmp
-        let visited = Set.add cur visited
-        let tmp =
-            [
-                if ci > si then (ci - 1), cj
-                if ci < fi then (ci + 1), cj
-                if cj > sj then ci, (cj - 1)
-                if cj < fj then ci, cj + 1
-            ]
-            |> List.filter (fun c -> Set.contains c digged |> not)
-            |> List.filter (fun c -> Set.contains c visited |> not)
-            |> List.fold (fun acc c -> Set.add c acc) tmp 
-        wave digged si sj fi fj visited tmp
-    
+   
+        
 let parseColor src =
     let src =
         src
@@ -61,17 +29,35 @@ let parseColor src =
     let mv = Int32.Parse (Seq.take 5 src |> String.joinSeq "", NumberStyles.HexNumber)
     dir, mv
  
+ 
+let rec collectLines source rows cols cur =
+    match source with
+    | [] -> rows, cols
+    | h::rest ->
+        let i,j = cur
+        let move = snd h
+        let (fi, fj) =
+            match fst h with
+            | "R" -> (i, j + move)
+            | "D" -> (i + move, j)
+            | "L" -> (i, j - move)
+            | "U" -> (i - move, j)
+            | _ -> failwith "NOOOOOOOO"
+        let rows = if fi = i then (i, (min j fj, max j fj))::rows else rows   
+        let cols = if fj = j then (j, (min i fi, max i fi))::cols else cols   
+        collectLines rest rows cols (fj, fj)   
+
+let countInside rows cols (si, sj) (fi, fj) =
+    let crossRows = List.fold (fun acc (i, (csj, cfj)) -> if si <= i && fi > i && csj <= fj && cfj >= sj then acc + 1 else acc) 0 rows    
+    let crossCols = List.fold (fun acc (j, (csi, cfi)) -> if sj <= j && fj > j && csi <= fi && cfi >= si then acc + 1 else acc) 0 cols
+    if crossRows % 2 = 1 && crossCols  % 2 = 1 then (fj-sj |> int64 |> (+) 1L)*(fi-si |> int64 |> (+) 1L) else 0L
+ 
 let run source =
-    let digged = move <| Set.singleton (0,0) <| (0, 0) <| source
-    let rows = Seq.map fst digged
-    let cols = Seq.map snd digged
-    let si, sj = (Seq.min rows), (Seq.min cols)
-    let fi, fj = (Seq.max rows), (Seq.max cols)
-    
-    let around = wave digged (si - 1) (sj - 1) (fi + 1) (fj + 1) Set.empty <| Set.singleton (si - 1, sj - 1)
-    
-    let total = (fi - si + 3) * (fj - sj + 3)
-    (-) total <| Set.count around   
+    let rows, cols = collectLines source List.empty List.empty (0, 0)
+    let rowPairs = rows |> List.map fst |> List.sort |> List.pairwise
+    let colPairs = cols |> List.map fst |> List.sort |> List.pairwise
+    List.allPairs rowPairs colPairs
+    |> List.sumBy (fun ((si, fi), (sj, fj)) -> countInside rows cols (si, sj) (fi, fj))
     
 
 [<Puzzle(2023, 18)>]
