@@ -52,10 +52,25 @@ let countInside rows cols (si, sj) (fi, fj) =
     let crossCols = List.fold (fun acc (j, (csi, cfi)) -> if sj <= j && fj > j && csi <= fi && cfi >= si then acc + 1 else acc) 0 cols
     if crossRows % 2 = 1 && crossCols  % 2 = 1 then (fj-sj |> int64 |> (+) 1L)*(fi-si |> int64 |> (+) 1L) else 0L
  
+let gaps points =
+    let points =
+        points
+        |> List.map fst
+        |> List.collect (fun i -> [i-1;i;i+1])
+        |> List.sort
+    let points = 
+    let mx = Set.maxElement points
+        
+    let p1, p2 = points |> Set.remove mn |> Set.remove mx |> Set.toList |> List.indexed |> List.partition (fun v -> fst v |> (%) <| 2 = 0)
+    let p1 = List.map fst p1
+    let p2 = List.map fst p2
+    List.map2 (fun a b -> a,b) p1 p2   
+    
+ 
 let run source =
     let rows, cols = collectLines source List.empty List.empty (0, 0)
-    let rowPairs = rows |> List.map fst |> List.sort |> List.pairwise
-    let colPairs = cols |> List.map fst |> List.sort |> List.pairwise
+    let rowPairs = gaps rows
+    let colPairs = gaps cols
     List.allPairs rowPairs colPairs
     |> List.sumBy (fun ((si, fi), (sj, fj)) -> countInside rows cols (si, sj) (fi, fj))
     
