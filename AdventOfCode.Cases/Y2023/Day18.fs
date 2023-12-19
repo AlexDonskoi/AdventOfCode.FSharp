@@ -45,7 +45,7 @@ let rec collectLines source rows cols cur =
             | _ -> failwith "NOOOOOOOO"
         let rows = if fi = i then (i, (min j fj, max j fj))::rows else rows   
         let cols = if fj = j then (j, (min i fi, max i fi))::cols else cols   
-        collectLines rest rows cols (fj, fj)   
+        collectLines rest rows cols (fi, fj)   
 
 let countInside rows cols (si, sj) (fi, fj) =
     let crossRows = List.fold (fun acc (i, (csj, cfj)) -> if si <= i && fi > i && csj <= fj && cfj >= sj then acc + 1 else acc) 0 rows    
