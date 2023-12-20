@@ -58,13 +58,9 @@ let gaps points =
         |> List.map fst
         |> List.collect (fun i -> [i-1;i;i+1])
         |> List.sort
-    let points = 
-    let mx = Set.maxElement points
-        
-    let p1, p2 = points |> Set.remove mn |> Set.remove mx |> Set.toList |> List.indexed |> List.partition (fun v -> fst v |> (%) <| 2 = 0)
-    let p1 = List.map fst p1
-    let p2 = List.map fst p2
-    List.map2 (fun a b -> a,b) p1 p2   
+        |> List.tail |> List.rev |> List.tail |> List.rev
+        |> List.pairwise
+    points
     
  
 let run source =
