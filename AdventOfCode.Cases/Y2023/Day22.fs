@@ -40,8 +40,8 @@ let countA (_,support,supportedBy) block =
     | None -> 1
     | Some lst ->
         if List.forall (fun b -> Map.tryFind b supportedBy |> Option.defaultValue [] |> List.length |> (<) 1) lst then 1 else 0
-        
-let rec countB (state,support,supportedBy) cnt blocks =
+ 
+let rec countBRec (state,support,supportedBy) cnt blocks all =
     let searchFolder acc cur =
         match Map.tryFind cur support with
         | None -> acc
@@ -53,11 +53,16 @@ let rec countB (state,support,supportedBy) cnt blocks =
         | None -> false
         | Some [] -> false
         | Some lst ->
-            Set.isSubset (Set.ofList lst) blocks
+            Set.isSubset (Set.ofList lst) all
     let falling = Set.filter fallFilter probable
     let adj = Set.count falling
     if adj = 0 then cnt else
-        countB <| (state,support,supportedBy) <| cnt + adj <| falling
+        let all = Set.union falling all
+        countBRec <| (state,support,supportedBy) <| cnt + adj <| falling <| all
+        
+let countB state block =
+    let set = Set.singleton block
+    countBRec state 0 set set
     
 [<Puzzle(2023, 22)>]
 let puzzle case (source:seq<string>) =
@@ -67,5 +72,5 @@ let puzzle case (source:seq<string>) =
     let count = 
         match case with
         | Case.A -> countA state
-        | Case.B -> Set.singleton >> countB state 0
+        | Case.B -> countB state
     Seq.sumBy count bricks
