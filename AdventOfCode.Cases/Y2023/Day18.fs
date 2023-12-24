@@ -51,18 +51,22 @@ let rec collectLines source rows cols cur =
 let countInside rows cols (si, sj) (fi, fj) =
     
     
-    //let catchBorder = List.filter (fun (ri, (rsj, rfj)) -> si <= ri && ri <= fi && fj >= rsj && sj <= rfj ) rows |> List.length
-    //let catchBorder = List.filter (fun (cj, (csi, cfi)) -> si <= cfi && fi >= csi && fj >= cj && sj <= cj ) cols  |> List.length |> (+) catchBorder
+    let catchBorder = List.filter (fun (ri, (rsj, rfj)) -> si <= ri && ri <= fi && fj >= rsj && sj <= rfj ) rows |> List.length
+    let catchBorder = List.filter (fun (cj, (csi, cfi)) -> si <= cfi && fi >= csi && fj >= cj && sj <= cj ) cols  |> List.length |> (+) catchBorder
     
-    //if catchBorder then 0L else
-    let crossRows = List.fold (fun acc (ri, (csj, cfj)) -> if si > ri  && csj <= fj && cfj >= sj then acc + 1 else acc) 0 rows    
-    let crossCols = List.fold (fun acc (cj, (rsi, rfi)) -> if cj < sj && rsi <= fi && rfi >= si then acc + 1 else acc) 0 cols
-    if (crossRows + crossCols) % 2 = 1 then
-        let cnt = (fj-sj |> int64 |> (+) 1L)*(fi-si |> int64 |> (+) 1L)
-        printf $"{si}-{sj}, {fi}-{fj} "
-        printfn $"%d{cnt}"
-        cnt
-        else 0L
+    if catchBorder > 0 then 0L else
+        let crossVertical = List.fold (fun acc (ri, (csj, cfj)) -> if si > ri  && csj <= fj && cfj >= sj then acc + 1 else acc) 0 rows
+        let crossVertical = crossVertical + List.fold (fun acc (cj, (rsi, rfi)) -> if si > rfi && sj <= cj && fj >= cj then acc + 1 else acc) 0 cols
+        
+        let crossHorizontal = List.fold (fun acc (cj, (rsi, rfi)) -> if cj < sj && rsi <= fi && rfi >= si then acc + 1 else acc) 0 cols
+        let crossHorizontal = crossHorizontal + List.fold (fun acc (ri, (csj, cfj)) -> if sj > cfj  && si <= ri && fi >= ri then acc + 1 else acc) 0 rows
+        
+        if crossVertical % 2 = 1 && crossHorizontal % 2 = 1 then
+            let cnt = (fj-sj |> int64 |> (+) 1L)*(fi-si |> int64 |> (+) 1L)
+            printf $"{si}-{sj}, {fi}-{fj} "
+            printfn $"%d{cnt}"
+            cnt
+            else 0L
     
  
 let gaps points =
