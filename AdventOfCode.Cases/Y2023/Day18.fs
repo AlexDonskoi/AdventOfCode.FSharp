@@ -75,12 +75,17 @@ let gaps points =
     |> List.filter (fun c -> c ||> (<=))
     |> List.distinct
  
+let removeBorder rows cols   = []
+ 
+let rec searchInner = []
+ 
 let run source =
     let rows, cols = collectLines source List.empty List.empty (1, 1)
     let rowPairs = gaps rows
     let colPairs = gaps cols
     let cnt =
         List.allPairs rowPairs colPairs
+        //|> List.filter
         |> List.sumBy (fun ((si, fi), (sj, fj)) -> countInside rows cols (si, sj) (fi, fj))
     cnt
     |> (+) <| (List.sumBy (fun (_, (s,f)) -> f - s) rows |> int64)
