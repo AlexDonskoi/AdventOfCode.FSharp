@@ -22,39 +22,60 @@ let insertMap map k v =
     |> Map.change k (appendOption v)
     |> Map.change v (appendOption k)
  
-let isSameGroup map acc a b =
-    let conA = Map.find a map
-    let conB = Map.find b map
-    if Set.intersect conA conB |> Set.count |> (>) 3 then Set.add (a,b) acc else acc
-    
-let allPairs map acc a lst = Set.fold (fun acc c -> Set.add (min a c, max a c) acc) acc lst
-    
-let rec connections map acc p1 p2 p3 tgts =
-    let folder acc tgt = 
-        let conn = Map.find tgt map
-        let conn = if tgt = fst p1 then Set.remove <| snd p1 <| conn else conn
-        let conn = if tgt = snd p1 then Set.remove <| fst p1 <| conn else conn
-        let conn = if tgt = fst p2 then Set.remove <| snd p2 <| conn else conn
-        let conn = if tgt = snd p2 then Set.remove <| fst p2 <| conn else conn
-        let conn = if tgt = fst p3 then Set.remove <| snd p3 <| conn else conn
-        let conn = if tgt = snd p3 then Set.remove <| fst p3 <| conn else conn
-        Set.union acc conn
-    let conn = Set.fold folder Set.empty tgts
-    let add = Set.difference conn acc
-    
-    let acc = Set.union acc add
-    if Set.isEmpty add then acc else connections map acc p1 p2 p3 add
-    
-let check map pairs i j k =
-    let p1 = Array.get pairs i
-    let p2 = Array.get pairs j
-    let p3 = Array.get pairs k
-    let init = Set.singleton <| fst p1
-    let conn = connections map Set.empty p1 p2 p3 init
-    let grpCount = Set.count conn
-    let mapCount = Map.count map
-    if  grpCount = mapCount then None else (mapCount - grpCount) * grpCount |> Some
-    
+let rec getPathRec map current exit =
+    let tmp = Set.minElement current
+    let steps, point, visited = tmp
+    let visited = Set.add point visited
+    let current = Set.remove tmp current
+    if point = exit then Some visited else
+        let current =
+            Map.tryFind point map
+            |> Option.defaultValue Set.empty
+            |> Set.filter (fun c -> Set.contains c visited |> not)
+            |> Set.fold (fun acc c -> Set.add (steps + 1, c, visited) acc) current
+        if Set.isEmpty current then None else
+            getPathRec map current exit
+            
+let getPath map a b = getPathRec map <| Set.singleton (0, a, Set.empty) <| b
+
+let removeConnections map a b = map |> Map.change a (Option.defaultValue Set.empty >> Set.remove b >> Some)  |> Map.change b (Option.defaultValue Set.empty >> Set.remove a >> Some) 
+ 
+let rec checkConnections map a b step =
+    let map = if step > 0 then removeConnections map a b else map
+    match getPath map a b with
+    | None -> Some map
+    | Some visited when step = 0 -> None
+    | Some visited ->
+        let folder acc cur =
+            match acc with
+            | None -> cur ||> checkConnections map <| step - 1
+            | v -> v
+            
+        visited |> Set.toList
+        |> List.collect (fun c -> Map.find c map |> Set.map (fun s -> c,s) |> Set.toList)
+        |> List.fold folder None
+
+let rec getPoints map visited current =
+    let visited = Set.union visited current
+    let current = current |> Seq.collect (fun k -> Map.find k map) |> Set.ofSeq |> Set.difference <| visited
+    if Set.isEmpty current then visited else
+        getPoints map visited current
+  
+let getGroups map =
+    let startPoint = Map.keys map |> Seq.head |> Set.singleton
+    getPoints map Set.empty startPoint 
+
+
+        
+let rec searchRec map = function
+    | [] -> None
+    | (a,b)::rest ->
+        match checkConnections map a b 3 with
+        | Some map ->
+            let grpCount = getGroups map |> Set.count
+            let restCount = Map.count map - grpCount 
+            Some (grpCount*restCount)
+        | None -> searchRec map rest
     
 [<Puzzle(2023, 25)>]
 let puzzle case (source:seq<string>) =
@@ -62,19 +83,8 @@ let puzzle case (source:seq<string>) =
         Seq.fold (fun acc -> insertMap acc s) map arr
     let source = source |> Seq.map parseLine |> Seq.fold folder Map.empty
     
-    let allPairs = Map.fold (fun acc k v -> allPairs source acc k v ) Set.empty source |> Set.toArray
-    
-    let size = Array.length allPairs |> (-) <| 1
-    
-    let mutable res = None
-    
-    for i in 0 .. size do
-        for j in i + 1 .. size do
-            for k in j + 1 .. size do
-                res <- if Option.isSome res then res else check source allPairs i j k
-                
-                
+    let allPairs = Map.fold (fun acc k lst -> lst |> Seq.map (fun c -> k,c) |> Seq.toList |> List.append acc) List.empty source
     
     match case with
-    | Case.A -> res
+    | Case.A -> searchRec source allPairs
     | Case.B -> Some 0
