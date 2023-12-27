@@ -21,70 +21,73 @@ let insertMap map k v =
     map
     |> Map.change k (appendOption v)
     |> Map.change v (appendOption k)
- 
-let rec getPathRec map current exit =
+  
+let rec getPathRec map skip current exit =
     let tmp = Set.minElement current
     let steps, point, visited = tmp
-    let visited = Set.add point visited
     let current = Set.remove tmp current
-    if point = exit then Some visited else
+    if point = exit then true,visited else
+        let visited = Set.add point visited
         let current =
-            Map.tryFind point map
-            |> Option.defaultValue Set.empty
-            |> Set.filter (fun c -> Set.contains c visited |> not)
-            |> Set.fold (fun acc c -> Set.add (steps + 1, c, visited) acc) current
-        if Set.isEmpty current then None else
-            getPathRec map current exit
+            Map.find point map
+            |> Set.fold (fun acc c -> if Set.contains (point, c) skip || Set.contains c visited then acc else Set.add (steps + 1, c, visited) acc) current
+        if Set.isEmpty current then false, visited else
+            getPathRec map skip current exit
             
-let getPath map a b = getPathRec map <| Set.singleton (0, a, Set.empty) <| b
-
-let removeConnections map a b = map |> Map.change a (Option.defaultValue Set.empty >> Set.remove b >> Some)  |> Map.change b (Option.defaultValue Set.empty >> Set.remove a >> Some) 
- 
-let rec checkConnections map a b step =
-    let map = if step > 0 then removeConnections map a b else map
-    match getPath map a b with
-    | None -> Some map
-    | Some visited when step = 0 -> None
-    | Some visited ->
-        let folder acc cur =
-            match acc with
-            | None -> cur ||> checkConnections map <| step - 1
-            | v -> v
-            
-        visited |> Set.toList
-        |> List.collect (fun c -> Map.find c map |> Set.map (fun s -> c,s) |> Set.toList)
-        |> List.fold folder None
-
-let rec getPoints map visited current =
-    let visited = Set.union visited current
-    let current = current |> Seq.collect (fun k -> Map.find k map) |> Set.ofSeq |> Set.difference <| visited
-    if Set.isEmpty current then visited else
-        getPoints map visited current
+let getPath map skip a b = getPathRec map skip <| Set.singleton (0, a, Set.singleton a) <| b
   
-let getGroups map =
-    let startPoint = Map.keys map |> Seq.head |> Set.singleton
-    getPoints map Set.empty startPoint 
-
-
-        
-let rec searchRec map = function
-    | [] -> None
-    | (a,b)::rest ->
-        match checkConnections map a b 3 with
-        | Some map ->
-            let grpCount = getGroups map |> Set.count
-            let restCount = Map.count map - grpCount 
-            Some (grpCount*restCount)
-        | None -> searchRec map rest
-    
 [<Puzzle(2023, 25)>]
 let puzzle case (source:seq<string>) =
     let folder map (s, arr) =
         Seq.fold (fun acc -> insertMap acc s) map arr
     let source = source |> Seq.map parseLine |> Seq.fold folder Map.empty
     
-    let allPairs = Map.fold (fun acc k lst -> lst |> Seq.map (fun c -> k,c) |> Seq.toList |> List.append acc) List.empty source
+    let allPairs = Map.fold (fun acc k lst -> lst |> Seq.map (fun c -> min k c, max c k) |> Set.ofSeq |> Set.union acc) Set.empty source  |> Set.toArray |> Array.rev
     
+    let size = Array.length allPairs |> (+) -1
+    
+    let mutable res = 0
+    let mutable cache = Set.empty;
+    for startPair in source do
+        if res > 0 then () else 
+            let start1 = startPair.Key
+            for end1 in startPair.Value do
+                if res > 0 then () else
+                    let skip = Set.empty |> Set.add (min start1 end1, max start1 end1)  |> Set.add (max start1 end1, min start1 end1)
+                    let st = min start1 end1
+                    let fn = max start1 end1
+                    let skip = skip |> Set.add (st, fn)  |> Set.add (fn,st)
+                    if Set.contains (st, fn) cache then () else                                            
+                        match getPath source skip start1 end1 with
+                        | false, _ -> failwith "too earlier"
+                        | _, visited2 ->
+                            for start2 in visited2 do
+                                if res > 0 then () else
+                                    for end2 in Map.find start2 source do
+                                        if res > 0 || (Set.contains end2 visited2 |> not) then () else
+                                            let st = min start2 end2
+                                            let fn = max start2 end2
+                                            let skip = skip |> Set.add (st, fn)  |> Set.add (fn,st)
+                                            if Set.count skip <> 4 || Set.contains (st, fn) cache then () else
+                                                match getPath source skip start1 end1 with
+                                                | false, _ -> failwith "too earlier"
+                                                | _, visited3 ->
+                                                    for start3 in visited3 do
+                                                        if res > 0 then () else
+                                                            for end3 in Map.find start3 source do
+                                                            if res > 0  || (Set.contains end3 visited3 |> not) then () else
+                                                                let st = min start3 end3
+                                                                let fn = max start3 end3
+                                                                let skip = skip |> Set.add (st, fn)  |> Set.add (fn,st)
+                                                                if Set.count skip <> 6 || Set.contains (st, fn) cache then () else
+                                                                    match getPath source skip start1 end1 with
+                                                                    | true, _ -> ()
+                                                                    | _, visited -> 
+                                                                        let grpCount = Set.count visited
+                                                                        let allCount = Map.count source
+                                                                        res <-(grpCount)* (allCount - grpCount)
+                                                                          
+                        cache<- Set.add (st, fn) cache                                                    
     match case with
-    | Case.A -> searchRec source allPairs
-    | Case.B -> Some 0
+    | Case.A -> res
+    | Case.B -> failwith "all done!!"
