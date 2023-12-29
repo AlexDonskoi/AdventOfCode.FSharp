@@ -73,7 +73,9 @@ let rec walk getSteps cache finish res states =
     let visited = Set.add cur visited
     
     let folder visited acc (c,adj) = if Set.contains c visited then acc else Set.add (v + adj, c, visited) acc
+    
     let folder = folder visited
+    
     let states = if finish = cur then states else getSteps cur |> List.fold folder states
     let res = if finish = cur then max v res else res
     if Set.isEmpty states then res else
@@ -85,7 +87,8 @@ let puzzle case (source:seq<string>) =
     let source = toArray source
     let size1, size2 = Array2D.sizes source
     
-    let res = Array2D.foldi (fun acc i j v -> if v <> '#' && getSteps source Map.empty (i,j) |> List.length |> (<) 3 then acc + 1 else acc) 0 source
+    let getNoCache = getSteps source Map.empty
+    let res = Array2D.foldi (fun acc i j v -> if v <> '#' && getNoCache (i,j) |> List.length |> (<) 3 then Set.add (i,j) acc else acc) Set.empty source
     
     let source =
         match case with
@@ -93,9 +96,10 @@ let puzzle case (source:seq<string>) =
         | Case.B ->
             Array2D.iteri (fun i j v -> if v <> '#' then source.[i,j]<- '.' else ()) source
             source
+            
     let start = source.[0,*] |> Array.findIndex ((=) '.')
     let finish = source.[size1,*] |> Array.findIndex ((=) '.')
-    let getNoCache = getSteps source Map.empty >> List.map fst
+    let getNoCache = getNoCache >> List.map fst
     let cache = fillCache getNoCache source
     let getSteps = getSteps source cache
     walk getSteps cache <| (size1,finish) <| 0 <| Set.singleton (0, (0,start), Set.empty)
