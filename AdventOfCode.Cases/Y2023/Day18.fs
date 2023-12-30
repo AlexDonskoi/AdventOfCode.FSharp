@@ -48,23 +48,23 @@ let rec collectLines source rows cols cur =
         let cols = match col with | Some c -> c::cols | _ -> cols
         collectLines rest rows cols (fi, fj)   
 
-let countInside rows cols (si, sj) (fi, fj) =
+let countInside (rows, innerRows) (cols, innerCols) (si, sj) (fi, fj) =
     
     
-    let catchBorder = List.filter (fun (ri, (rsj, rfj)) -> si <= ri && ri <= fi && fj >= rsj && sj <= rfj ) rows |> List.length
-    let catchBorder = List.filter (fun (cj, (csi, cfi)) -> si <= cfi && fi >= csi && fj >= cj && sj <= cj ) cols  |> List.length |> (+) catchBorder
+    let catchBorder = List.fold (fun acc (ri, (rsj, rfj)) -> acc || (si <= ri && ri <= fi && fj >= rsj && sj <= rfj) ) false rows
+    let catchBorder = catchBorder || List.fold (fun acc (cj, (csi, cfi)) -> acc || (si <= cfi && fi >= csi && fj >= cj && sj <= cj)) false cols
     
-    if catchBorder > 0 then 0L else
+    if catchBorder then 0L else
         let crossVertical = List.fold (fun acc (ri, (csj, cfj)) -> if si > ri  && csj <= fj && cfj >= sj then acc + 1 else acc) 0 rows
-        let crossVertical = crossVertical + List.fold (fun acc (cj, (rsi, rfi)) -> if si > rfi && sj <= cj && fj >= cj then acc + 1 else acc) 0 cols
+        let crossVertical = crossVertical + List.fold (fun acc (cj, (rsi, rfi)) -> if si > rfi && sj <= cj && fj >= cj then acc + 1 else acc) 0 innerCols
         
         let crossHorizontal = List.fold (fun acc (cj, (rsi, rfi)) -> if cj < sj && rsi <= fi && rfi >= si then acc + 1 else acc) 0 cols
-        let crossHorizontal = crossHorizontal + List.fold (fun acc (ri, (csj, cfj)) -> if sj > cfj  && si <= ri && fi >= ri then acc + 1 else acc) 0 rows
+        let crossHorizontal = crossHorizontal + List.fold (fun acc (ri, (csj, cfj)) -> if sj > cfj  && si <= ri && fi >= ri then acc + 1 else acc) 0 innerRows
         
         if crossVertical % 2 = 1 && crossHorizontal % 2 = 1 then
             let cnt = (fj-sj |> int64 |> (+) 1L)*(fi-si |> int64 |> (+) 1L)
-            printf $"{si}-{sj}, {fi}-{fj} "
-            printfn $"%d{cnt}"
+            // printf $"{si}-{sj}, {fi}-{fj} "
+            // printfn $"%d{cnt}"
             cnt
             else 0L
     
@@ -79,21 +79,28 @@ let gaps points =
     |> List.filter (fun c -> c ||> (<=))
     |> List.distinct
  
-let removeBorder rows cols   = []
- 
-let rec searchInner = []
- 
 let run source =
     let rows, cols = collectLines source List.empty List.empty (1, 1)
     let rowPairs = gaps rows
     let colPairs = gaps cols
+    
+    let notSameSideConnections coll (p,(st, fn)) =
+        let _,(c11, c12) = List.find (fun (f,(p1, p2)) -> f = st && p1<= p && p2>=p) coll
+        let _,(c21, c22) = List.find (fun (f,(p1, p2)) -> f = fn && p1<= p && p2>=p) coll
+        let v = (p >= c11 && p >= c12 && p >= c21 && p >= c22) || (p <= c11 && p <= c12 && p <= c21 && p <= c22)
+        not v
+    
+    let innerRows = rows |> List.filter (notSameSideConnections cols)
+    let innerCols = cols |> List.filter (notSameSideConnections rows)
+    
     let cnt =
         List.allPairs rowPairs colPairs
         //|> List.filter
-        |> List.sumBy (fun ((si, fi), (sj, fj)) -> countInside rows cols (si, sj) (fi, fj))
+        |> List.sumBy (fun ((si, fi), (sj, fj)) -> countInside (rows, innerRows) (cols, innerCols) (si, sj) (fi, fj))
+    
     cnt
-    |> (+) <| (List.sumBy (fun (_, (s,f)) -> f - s) rows |> int64)
-    |> (+) <| (List.sumBy (fun (_, (s,f)) -> f - s) cols |> int64)
+    |> (+) <| (List.fold (fun acc (_, (s,f)) -> (f - s) |> int64 |> (+) acc) 0L rows)
+    |> (+) <| (List.fold (fun acc (_, (s,f)) -> (f - s) |> int64 |> (+) acc) 0L cols)
 
 [<Puzzle(2023, 18)>]
 let puzzle case (source:seq<string>) =
