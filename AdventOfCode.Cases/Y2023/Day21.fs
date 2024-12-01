@@ -163,24 +163,20 @@ let puzzle case (source:seq<string>) =
     match case with
         | Case.A -> init |> filterReachable 64L |> Map.count |> int64
         | Case.B ->
-            // let limit = 26501365L
-            //
-            // let cache =
-            //     [
-            //         yield! [0..size1] |> List.collect (fun i -> [i,0; i,size2])
-            //         yield! [0..size2] |> List.collect (fun j -> [0,j; size1,j])
-            //     ]
-            //     |> List.map (fun start -> start, (steps source Map.empty <| Set.singleton (0,start) |> ))
-            //     |> Map
-            //
-            // let getSides = getSides size1 size2
-            // let reachable = filterReachable limit
-            // let init = reachable init
-            // let getCount = getCount limit
-            // let initCnt = getCount init
-            // let initSet = init |> getSides |> List.collect (fun (side, points) -> [(side, (0,0)), points]) |> Map
-            // run (size1, size2) cache getSides reachable getCount initCnt initSet
-            for i in 0L..26501365L do
-                for j in 0L..26501365L do
-                    ()
-            0L        
+            let limit = 26501365L
+            
+            let cache =
+                [
+                    yield! [0..size1] |> List.collect (fun i -> [i,0; i,size2])
+                    yield! [0..size2] |> List.collect (fun j -> [0,j; size1,j])
+                ]
+                |> List.map (fun start -> start, (steps source Map.empty <| Set.singleton (0,start)))
+                |> Map
+            
+            let getSides = getSides size1 size2
+            let reachable = filterReachable limit
+            let init = reachable init
+            let getCount = getCount limit
+            let initCnt = getCount init
+            let initSet = init |> getSides |> List.collect (fun (side, points) -> [(side, (0,0)), points]) |> Map
+            run (size1, size2) cache getSides reachable getCount initCnt initSet

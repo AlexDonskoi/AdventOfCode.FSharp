@@ -28,7 +28,7 @@ let parsePattern casePattern input =
 let parseA = parsePattern "\d"
 let parseB = parsePattern "(\d|one|two|three|four|five|six|seven|eight|nine)"
 
-[<Puzzle(2023, 2)>]
+[<Puzzle(2023, 1)>]
 let puzzle case (source:seq<string>) =
     let parse =
         match case with
